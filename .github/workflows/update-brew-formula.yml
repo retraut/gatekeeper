@@ -141,6 +141,7 @@ jobs:
         if: steps.cpr.outputs.pull-request-number
         run: |
           gh pr merge ${{ steps.cpr.outputs.pull-request-number }} \
+            --repo ${{ github.repository }} \
             --auto \
             --squash \
             --delete-branch
