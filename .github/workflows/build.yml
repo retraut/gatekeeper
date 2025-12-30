@@ -1,0 +1,83 @@
+name: Build
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main, develop ]
+
+jobs:
+  build-go:
+    name: Build Go CLI
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, darwin, windows]
+        arch: [amd64, arm64]
+        exclude:
+          - os: windows
+            arch: arm64
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Build
+        run: |
+          mkdir -p dist
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }} .
+        env:
+          CGO_ENABLED: 0
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: gatekeeper-${{ matrix.os }}-${{ matrix.arch }}
+          path: dist/
+
+  build-macos-app:
+    name: Build macOS App
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [x86_64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build GatekeeperApp
+        run: |
+          cd GatekeeperApp
+          xcodebuild -scheme Gatekeeper \
+            -configuration Release \
+            -arch ${{ matrix.arch }} \
+            -derivedDataPath build \
+            build
+
+      - name: Create App Archive
+        run: |
+          mkdir -p dist
+          cd GatekeeperApp/build/Build/Products/Release
+          zip -r ../../../../../dist/GatekeeperApp-${{ matrix.arch }}.zip Gatekeeper.app
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: GatekeeperApp-${{ matrix.arch }}
+          path: dist/
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Run tests
+        run: go test -v ./...
