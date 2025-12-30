@@ -42,3 +42,7 @@
 * correct YAML indentation in release workflow ([f7bf2ba](https://github.com/retraut/gatekeeper/commit/f7bf2ba84694c2cd777fb46f070ff0abcf6a935a))
 * remove unnecessary 'daemon' alias - use 'start' command only ([1c94ebd](https://github.com/retraut/gatekeeper/commit/1c94ebd7eb0b1561bcf844994572f68ae32add9a))
 * simplify release workflow - remove complex homebrew update step ([215e842](https://github.com/retraut/gatekeeper/commit/215e8421ae70cc3f92e07768c0039e7797f68b92))
+# Gatekeeper 0.4.2
+
+- Improved workflow reliability
+- Fixed Brew formula update automation
