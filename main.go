@@ -116,6 +116,7 @@ func handleStop() {
 	
 	if pid == 0 {
 		fmt.Println("Invalid PID file")
+		os.Remove(pidFile)
 		return
 	}
 	
@@ -133,6 +134,8 @@ func handleStop() {
 		log.Fatalf("Error stopping daemon: %v", err)
 	}
 	
+	// Clean up PID file
+	os.Remove(pidFile)
 	fmt.Printf("Stopped daemon (PID %d)\n", pid)
 }
 

@@ -28,7 +28,6 @@ func runDaemon(config *Config) {
 	if err := os.WriteFile(pidFile, pidBytes, 0644); err != nil {
 		daemonLogger.Warnf("Error saving PID file: %v", err)
 	}
-	defer os.Remove(pidFile)
 
 	daemonLogger.Info("Gatekeeper daemon starting...")
 	daemonLogger.Infof("Checking interval: %d seconds", config.Interval)
