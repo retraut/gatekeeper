@@ -49,11 +49,12 @@ jobs:
           sha256sum gatekeeper-${{ matrix.os }}-${{ matrix.arch }} > gatekeeper-${{ matrix.os }}-${{ matrix.arch }}.sha256
 
       - name: Upload to Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }}
+        run: |
+          gh release upload ${{ github.ref_name }} \
+            dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }} \
+            dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }}.sha256 \
+            || gh release create ${{ github.ref_name }} \
+            dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }} \
             dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }}.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
