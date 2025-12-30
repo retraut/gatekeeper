@@ -15,9 +15,8 @@ type Service struct {
 }
 
 type Config struct {
-	Services   []Service `yaml:"services"`
-	Interval   int       `yaml:"interval"`     // seconds
-	HealthPort string    `yaml:"health_port"` // Optional HTTP health endpoint
+	Services []Service `yaml:"services"`
+	Interval int       `yaml:"interval"` // seconds
 }
 
 func loadConfig(path string) (*Config, error) {

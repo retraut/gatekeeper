@@ -15,12 +15,6 @@ func runDaemon(config *Config) {
 	daemonLogger.Infof("Checking interval: %d seconds", config.Interval)
 	daemonLogger.Infof("Found %d services to monitor", len(config.Services))
 
-	// Start health check HTTP server if configured
-	if config.HealthPort != "" {
-		daemonLogger.Infof("Starting health check server on port %s", config.HealthPort)
-		StartHealthServer(config.HealthPort)
-	}
-
 	ticker := time.NewTicker(time.Duration(config.Interval) * time.Second)
 	defer ticker.Stop()
 
@@ -46,9 +40,6 @@ func checkAndUpdateState(config *Config) {
 	// Check all services concurrently
 	statuses := checker.CheckBatch(ctx, config.Services)
 	state.Services = statuses
-
-	// Update health endpoint state
-	UpdateLastState(state)
 
 	if err := saveState(state); err != nil {
 		daemonLogger.Errorf("Error saving state: %v", err)

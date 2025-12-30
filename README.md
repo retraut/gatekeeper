@@ -2,6 +2,9 @@
 
 Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI.
 
+**GitHub:** https://github.com/retraut/gatekeeper  
+**Releases:** https://github.com/retraut/gatekeeper/releases
+
 ## Phase 1: Skeleton & Configuration ✅
 
 - [x] Project initialization (`go mod init`)
@@ -10,21 +13,36 @@ Service authentication status monitor with daemon, CLI, tmux integration, and ma
 - [x] State manager (JSON cache)
 - [x] CLI skeleton
 
+## Installation
+
+### Homebrew (Coming Soon)
+```bash
+brew install retraut/gatekeeper/gatekeeper
+```
+
+### From Source
+```bash
+git clone https://github.com/retraut/gatekeeper
+cd gatekeeper
+go build -o gatekeeper
+sudo mv gatekeeper /usr/local/bin/
+```
+
+### From GitHub Releases
+Download pre-built binaries from [Releases](https://github.com/retraut/gatekeeper/releases)
+
 ## Quick Start
 
 ```bash
-# Download dependencies
-go mod download
-
 # Initialize config
-go run . init
+gatekeeper init
 
 # Start daemon
-go run . daemon
+gatekeeper daemon
 
 # Check status (in another terminal)
-go run . status --compact
-go run . status --json
+gatekeeper status --compact
+gatekeeper status --json
 ```
 
 ## Config Format
@@ -192,3 +210,14 @@ Interactive widgets that display on macOS desktop or lock screen.
 - All three operate independently, zero coupling
 
 See [GatekeeperApp/BUILD.md](GatekeeperApp/BUILD.md) for detailed build instructions.
+
+## Contributing
+
+This project uses **Conventional Commits** for automated versioning and release management.
+
+When committing, use the format:
+- `feat: Add new feature` → triggers minor version bump
+- `fix: Fix a bug` → triggers patch version bump
+- `feat!: Breaking change` → triggers major version bump
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
