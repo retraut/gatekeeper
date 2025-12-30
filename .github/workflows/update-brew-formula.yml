@@ -1,0 +1,47 @@
+name: Update Brew Formula
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download checksums
+        run: |
+          mkdir -p /tmp/checksums
+          gh release download ${{ github.ref_name }} -p "*.sha256" -D /tmp/checksums
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract SHAs and update formula
+        run: |
+          cd /tmp/checksums
+          
+          # Extract SHA256 values from .sha256 files
+          DARWIN_ARM64=$(cat gatekeeper-darwin-arm64.sha256 | awk '{print $1}')
+          DARWIN_AMD64=$(cat gatekeeper-darwin-amd64.sha256 | awk '{print $1}')
+          LINUX_ARM64=$(cat gatekeeper-linux-arm64.sha256 | awk '{print $1}')
+          LINUX_AMD64=$(cat gatekeeper-linux-amd64.sha256 | awk '{print $1}')
+          
+          # Update Formula/gatekeeper.rb
+          cd $GITHUB_WORKSPACE
+          
+          # Replace version and SHAs
+          sed -i "s|releases/download/v[0-9.]*|releases/download/${{ github.ref_name }}|g" Formula/gatekeeper.rb
+          sed -i "0,/WILL_BE_REPLACED_BY_RELEASE_WORKFLOW/s|WILL_BE_REPLACED_BY_RELEASE_WORKFLOW|$DARWIN_ARM64|" Formula/gatekeeper.rb
+          sed -i "0,/WILL_BE_REPLACED_BY_RELEASE_WORKFLOW/s|WILL_BE_REPLACED_BY_RELEASE_WORKFLOW|$DARWIN_AMD64|" Formula/gatekeeper.rb
+          sed -i "0,/WILL_BE_REPLACED_BY_RELEASE_WORKFLOW/s|WILL_BE_REPLACED_BY_RELEASE_WORKFLOW|$LINUX_ARM64|" Formula/gatekeeper.rb
+          sed -i "0,/WILL_BE_REPLACED_BY_RELEASE_WORKFLOW/s|WILL_BE_REPLACED_BY_RELEASE_WORKFLOW|$LINUX_AMD64|" Formula/gatekeeper.rb
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "chore: update brew formula to ${{ github.ref_name }}"
+          title: "chore: update brew formula to ${{ github.ref_name }}"
+          body: "Automatically updated brew formula with new SHA256 checksums for ${{ github.ref_name }}"
+          branch: update-brew-formula-${{ github.ref_name }}
+          delete-branch: true
