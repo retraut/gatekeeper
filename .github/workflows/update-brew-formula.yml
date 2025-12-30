@@ -113,12 +113,13 @@ class Gatekeeper < Formula
 end
 ENDOFFILE
           
-          # Replace environment variable placeholders
-          sed -i "s/ENVVERSION/$VERSION/g" Formula/gatekeeper.rb
-          sed -i "s/ENVDARWIN_ARM64/$DARWIN_ARM64/g" Formula/gatekeeper.rb
-          sed -i "s/ENVDARWIN_AMD64/$DARWIN_AMD64/g" Formula/gatekeeper.rb
-          sed -i "s/ENVLINUX_ARM64/$LINUX_ARM64/g" Formula/gatekeeper.rb
-          sed -i "s/ENVLINUX_AMD64/$LINUX_AMD64/g" Formula/gatekeeper.rb
+          # Replace environment variable placeholders using proper escaping
+          sed -i.bak "s|ENVVERSION|${VERSION}|g" Formula/gatekeeper.rb
+          sed -i.bak "s|ENVDARWIN_ARM64|${DARWIN_ARM64}|g" Formula/gatekeeper.rb
+          sed -i.bak "s|ENVDARWIN_AMD64|${DARWIN_AMD64}|g" Formula/gatekeeper.rb
+          sed -i.bak "s|ENVLINUX_ARM64|${LINUX_ARM64}|g" Formula/gatekeeper.rb
+          sed -i.bak "s|ENVLINUX_AMD64|${LINUX_AMD64}|g" Formula/gatekeeper.rb
+          rm -f Formula/gatekeeper.rb.bak
 
       - name: Create Pull Request
         id: cpr
