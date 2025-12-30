@@ -38,36 +38,6 @@ jobs:
           name: gatekeeper-${{ matrix.os }}-${{ matrix.arch }}
           path: dist/
 
-  build-macos-app:
-    name: Build macOS App
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        arch: [x86_64, arm64]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build GatekeeperApp
-        run: |
-          cd GatekeeperApp
-          xcodebuild -scheme Gatekeeper \
-            -configuration Release \
-            -arch ${{ matrix.arch }} \
-            -derivedDataPath build \
-            build
-
-      - name: Create App Archive
-        run: |
-          mkdir -p dist
-          cd GatekeeperApp/build/Build/Products/Release
-          zip -r ../../../../../dist/GatekeeperApp-${{ matrix.arch }}.zip Gatekeeper.app
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: GatekeeperApp-${{ matrix.arch }}
-          path: dist/
-
   test:
     name: Test
     runs-on: ubuntu-latest
