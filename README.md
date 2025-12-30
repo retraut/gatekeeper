@@ -15,9 +15,42 @@ Service authentication status monitor with daemon, CLI, tmux integration, and ma
 
 ## Installation
 
-### Homebrew (Coming Soon)
+### Homebrew
+```bash
+brew tap retraut/gatekeeper
+brew install gatekeeper
+```
+
+Or one-liner:
 ```bash
 brew install retraut/gatekeeper/gatekeeper
+```
+
+### From GitHub Releases
+
+Download pre-built binaries for your platform:
+
+```bash
+# macOS (Intel)
+wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-amd64
+
+# macOS (Apple Silicon)
+wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-arm64
+
+# Linux (x86_64)
+wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-linux-amd64
+
+# Linux (ARM64)
+wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-linux-arm64
+
+# Windows
+wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-windows-amd64.exe
+```
+
+Then move to your PATH:
+```bash
+chmod +x gatekeeper-darwin-arm64
+mv gatekeeper-darwin-arm64 /usr/local/bin/gatekeeper
 ```
 
 ### From Source
@@ -25,11 +58,8 @@ brew install retraut/gatekeeper/gatekeeper
 git clone https://github.com/retraut/gatekeeper
 cd gatekeeper
 go build -o gatekeeper
-sudo mv gatekeeper /usr/local/bin/
+mv gatekeeper /usr/local/bin/
 ```
-
-### From GitHub Releases
-Download pre-built binaries from [Releases](https://github.com/retraut/gatekeeper/releases)
 
 ## Quick Start
 
