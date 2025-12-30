@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.2](https://github.com/retraut/gatekeeper/compare/v0.5.1...v0.5.2) (2025-12-30)
+
+
+### Bug Fixes
+
+* improve release workflow architecture ([a4e1137](https://github.com/retraut/gatekeeper/commit/a4e1137e2706c069523beea024b5072314718b56))
+* separate release-please and publish-release into independent triggers ([d93fbb7](https://github.com/retraut/gatekeeper/commit/d93fbb7f19f5c0ecfb47433d0322bf13b757d9b8))
+
 ## [0.5.1](https://github.com/retraut/gatekeeper/compare/v0.5.0...v0.5.1) (2025-12-30)
 
 
