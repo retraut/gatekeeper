@@ -7,13 +7,11 @@ import (
 )
 
 type Service struct {
-	Name     string        `yaml:"name"`
-	CheckCmd string        `yaml:"check_cmd"`
-	AuthCmd  string        `yaml:"auth_cmd"`
-	Timeout  int           `yaml:"timeout"`  // seconds
-	Retries  int           `yaml:"retries"`
-	Webhook  string        `yaml:"webhook"`  // Optional webhook URL for notifications
-	OnFailure string        `yaml:"on_failure"` // Command to run if check fails
+	Name     string `yaml:"name"`
+	CheckCmd string `yaml:"check_cmd"`
+	AuthCmd  string `yaml:"auth_cmd"`
+	Timeout  int    `yaml:"timeout"`  // seconds
+	Retries  int    `yaml:"retries"`
 }
 
 type Config struct {

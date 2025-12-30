@@ -50,17 +50,6 @@ func checkAndUpdateState(config *Config) {
 	// Update health endpoint state
 	UpdateLastState(state)
 
-	// Handle webhooks and on_failure actions
-	for i, service := range config.Services {
-		status := statuses[i]
-		
-		if !status.IsAlive && service.OnFailure != "" {
-			daemonLogger.Warnf("[%s] Running on_failure action", service.Name)
-			cmd := NewEnhancedChecker(CheckerOptions{Logger: daemonLogger})
-			cmd.runCommand(ctx, service.OnFailure)
-		}
-	}
-
 	if err := saveState(state); err != nil {
 		daemonLogger.Errorf("Error saving state: %v", err)
 	}
