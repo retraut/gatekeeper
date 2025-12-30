@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/retraut/gatekeeper/compare/v0.4.1...v0.4.2) (2025-12-30)
+
+
+### Bug Fixes
+
+* improve changelog documentation ([572f497](https://github.com/retraut/gatekeeper/commit/572f497859ad1dd3b602435609273c1f22270e06))
+
 ## [0.4.1](https://github.com/retraut/gatekeeper/compare/v0.4.0...v0.4.1) (2025-12-30)
 
 
