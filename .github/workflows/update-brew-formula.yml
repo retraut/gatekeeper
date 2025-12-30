@@ -27,15 +27,66 @@ jobs:
           LINUX_ARM64=$(cat gatekeeper-linux-arm64.sha256 | awk '{print $1}')
           LINUX_AMD64=$(cat gatekeeper-linux-amd64.sha256 | awk '{print $1}')
           
-          # Update Formula/gatekeeper.rb
-          cd $GITHUB_WORKSPACE
-          
-          # Replace version and SHAs
-          sed -i "s|releases/download/v[0-9.]*|releases/download/${{ github.ref_name }}|g" Formula/gatekeeper.rb
-          sed -i "0,/WILL_BE_REPLACED_BY_RELEASE_WORKFLOW/s|WILL_BE_REPLACED_BY_RELEASE_WORKFLOW|$DARWIN_ARM64|" Formula/gatekeeper.rb
-          sed -i "0,/WILL_BE_REPLACED_BY_RELEASE_WORKFLOW/s|WILL_BE_REPLACED_BY_RELEASE_WORKFLOW|$DARWIN_AMD64|" Formula/gatekeeper.rb
-          sed -i "0,/WILL_BE_REPLACED_BY_RELEASE_WORKFLOW/s|WILL_BE_REPLACED_BY_RELEASE_WORKFLOW|$LINUX_ARM64|" Formula/gatekeeper.rb
-          sed -i "0,/WILL_BE_REPLACED_BY_RELEASE_WORKFLOW/s|WILL_BE_REPLACED_BY_RELEASE_WORKFLOW|$LINUX_AMD64|" Formula/gatekeeper.rb
+          echo "DARWIN_ARM64=$DARWIN_ARM64" >> $GITHUB_ENV
+          echo "DARWIN_AMD64=$DARWIN_AMD64" >> $GITHUB_ENV
+          echo "LINUX_ARM64=$LINUX_ARM64" >> $GITHUB_ENV
+          echo "LINUX_AMD64=$LINUX_AMD64" >> $GITHUB_ENV
+
+      - name: Update formula file
+        run: |
+          cat > Formula/gatekeeper.rb << 'EOF'
+class Gatekeeper < Formula
+  desc "Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI"
+  homepage "https://github.com/retraut/gatekeeper"
+  license "MIT"
+  version "${{ github.ref_name }}"
+
+  on_macos do
+    on_arm do
+      url "https://github.com/retraut/gatekeeper/releases/download/${{ github.ref_name }}/gatekeeper-darwin-arm64"
+      sha256 "${{ env.DARWIN_ARM64 }}"
+    end
+    on_intel do
+      url "https://github.com/retraut/gatekeeper/releases/download/${{ github.ref_name }}/gatekeeper-darwin-amd64"
+      sha256 "${{ env.DARWIN_AMD64 }}"
+    end
+  end
+
+  on_linux do
+    on_arm do
+      url "https://github.com/retraut/gatekeeper/releases/download/${{ github.ref_name }}/gatekeeper-linux-arm64"
+      sha256 "${{ env.LINUX_ARM64 }}"
+    end
+    on_intel do
+      url "https://github.com/retraut/gatekeeper/releases/download/${{ github.ref_name }}/gatekeeper-linux-amd64"
+      sha256 "${{ env.LINUX_AMD64 }}"
+    end
+  end
+
+  def install
+    arch = if Hardware::CPU.arm?
+             "arm64"
+           else
+             "amd64"
+           end
+    
+    os_name = if OS.mac?
+                "darwin"
+              elsif OS.linux?
+                "linux"
+              else
+                "unknown"
+              end
+    
+    binary_name = "gatekeeper-#{os_name}-#{arch}"
+    bin.install binary_name => "gatekeeper"
+  end
+
+  test do
+    system "#{bin}/gatekeeper", "--help"
+  end
+end
+EOF
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
@@ -45,3 +96,4 @@ jobs:
           body: "Automatically updated brew formula with new SHA256 checksums for ${{ github.ref_name }}"
           branch: update-brew-formula-${{ github.ref_name }}
           delete-branch: true
+          token: ${{ secrets.GITHUB_TOKEN }}
