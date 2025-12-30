@@ -59,67 +59,71 @@ jobs:
           LINUX_ARM64: ${{ env.LINUX_ARM64 }}
           LINUX_AMD64: ${{ env.LINUX_AMD64 }}
         run: |
-          cat > Formula/gatekeeper.rb << 'ENDOFFILE'
-class Gatekeeper < Formula
-  desc "Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI"
-  homepage "https://github.com/retraut/gatekeeper"
-  license "MIT"
-  version "ENVVERSION"
+          python3 << 'EOFPYTHON'
+          import os
 
-  on_macos do
-    on_arm do
-      url "https://github.com/retraut/gatekeeper/releases/download/ENVVERSION/gatekeeper-darwin-arm64"
-      sha256 "ENVDARWIN_ARM64"
-    end
-    on_intel do
-      url "https://github.com/retraut/gatekeeper/releases/download/ENVVERSION/gatekeeper-darwin-amd64"
-      sha256 "ENVDARWIN_AMD64"
-    end
-  end
+          version = os.environ.get('VERSION')
+          darwin_arm64 = os.environ.get('DARWIN_ARM64')
+          darwin_amd64 = os.environ.get('DARWIN_AMD64')
+          linux_arm64 = os.environ.get('LINUX_ARM64')
+          linux_amd64 = os.environ.get('LINUX_AMD64')
 
-  on_linux do
-    on_arm do
-      url "https://github.com/retraut/gatekeeper/releases/download/ENVVERSION/gatekeeper-linux-arm64"
-      sha256 "ENVLINUX_ARM64"
-    end
-    on_intel do
-      url "https://github.com/retraut/gatekeeper/releases/download/ENVVERSION/gatekeeper-linux-amd64"
-      sha256 "ENVLINUX_AMD64"
-    end
-  end
+          formula = f"""class Gatekeeper < Formula
+            desc "Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI"
+            homepage "https://github.com/retraut/gatekeeper"
+            license "MIT"
+            version "{version}"
 
-  def install
-    arch = if Hardware::CPU.arm?
-             "arm64"
-           else
-             "amd64"
-           end
-    
-    os_name = if OS.mac?
-                "darwin"
-              elsif OS.linux?
-                "linux"
-              else
-                "unknown"
+            on_macos do
+              on_arm do
+                url "https://github.com/retraut/gatekeeper/releases/download/{version}/gatekeeper-darwin-arm64"
+                sha256 "{darwin_arm64}"
               end
-    
-    binary_name = "gatekeeper-#{os_name}-#{arch}"
-    bin.install binary_name => "gatekeeper"
-  end
+              on_intel do
+                url "https://github.com/retraut/gatekeeper/releases/download/{version}/gatekeeper-darwin-amd64"
+                sha256 "{darwin_amd64}"
+              end
+            end
 
-  test do
-    system "#{bin}/gatekeeper", "--help"
-  end
-end
-ENDOFFILE
-          
-          # Replace environment variable placeholders using proper escaping
-          sed -i.bak "s|ENVVERSION|${VERSION}|g" Formula/gatekeeper.rb
-          sed -i.bak "s|ENVDARWIN_ARM64|${DARWIN_ARM64}|g" Formula/gatekeeper.rb
-          sed -i.bak "s|ENVDARWIN_AMD64|${DARWIN_AMD64}|g" Formula/gatekeeper.rb
-          sed -i.bak "s|ENVLINUX_ARM64|${LINUX_ARM64}|g" Formula/gatekeeper.rb
-          sed -i.bak "s|ENVLINUX_AMD64|${LINUX_AMD64}|g" Formula/gatekeeper.rb
-          rm -f Formula/gatekeeper.rb.bak
+            on_linux do
+              on_arm do
+                url "https://github.com/retraut/gatekeeper/releases/download/{version}/gatekeeper-linux-arm64"
+                sha256 "{linux_arm64}"
+              end
+              on_intel do
+                url "https://github.com/retraut/gatekeeper/releases/download/{version}/gatekeeper-linux-amd64"
+                sha256 "{linux_amd64}"
+              end
+            end
+
+            def install
+              arch = if Hardware::CPU.arm?
+                       "arm64"
+                     else
+                       "amd64"
+                     end
+              
+              os_name = if OS.mac?
+                          "darwin"
+                        elsif OS.linux?
+                          "linux"
+                        else
+                          "unknown"
+                        end
+              
+              binary_name = "gatekeeper-#{{os_name}}-#{{arch}}"
+              bin.install binary_name => "gatekeeper"
+            end
+
+            test do
+              system "#{{{bin}}}/gatekeeper", "--help"
+            end
+          end
+          """
+
+          with open('Formula/gatekeeper.rb', 'w') as f:
+              f.write(formula)
+          EOFPYTHON
 
       - name: Create Pull Request
         id: cpr
