@@ -166,6 +166,7 @@ gatekeeper --help                   # Show help
 **Manual daemon control** (if not using LaunchAgent):
 ```bash
 gatekeeper daemon [--config path]   # Start daemon manually
+gatekeeper stop                     # Stop daemon gracefully
 ```
 
 ## Integration
