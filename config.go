@@ -1,0 +1,42 @@
+package main
+
+import (
+	"os"
+
+	"gopkg.in/yaml.v3"
+)
+
+type Service struct {
+	Name     string        `yaml:"name"`
+	CheckCmd string        `yaml:"check_cmd"`
+	AuthCmd  string        `yaml:"auth_cmd"`
+	Timeout  int           `yaml:"timeout"`  // seconds
+	Retries  int           `yaml:"retries"`
+	Webhook  string        `yaml:"webhook"`  // Optional webhook URL for notifications
+	OnFailure string        `yaml:"on_failure"` // Command to run if check fails
+}
+
+type Config struct {
+	Services   []Service `yaml:"services"`
+	Interval   int       `yaml:"interval"`     // seconds
+	HealthPort string    `yaml:"health_port"` // Optional HTTP health endpoint
+}
+
+func loadConfig(path string) (*Config, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var config Config
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		return nil, err
+	}
+
+	// Default interval if not specified
+	if config.Interval == 0 {
+		config.Interval = 30
+	}
+
+	return &config, nil
+}

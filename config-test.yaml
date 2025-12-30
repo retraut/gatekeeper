@@ -1,0 +1,13 @@
+services:
+  - name: AWS
+    check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
+    timeout: 10
+    retries: 1
+  
+  - name: GitHub
+    check_cmd: "gh auth status > /dev/null 2>&1"
+    timeout: 10
+    retries: 1
+
+interval: 30
+health_port: 8080

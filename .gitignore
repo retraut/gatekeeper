@@ -1,0 +1,42 @@
+# Go
+*.o
+*.a
+*.so
+.DS_Store
+dist/
+build/
+*.exe
+*.dll
+*.dylib
+
+# Go mod
+go.sum
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.env
+
+# macOS
+.DS_Store
+*.xcarchive
+*.ipa
+*.app
+DerivedData/
+.build/
+
+# Xcode
+xcuserdata/
+*.xcworkspace/
+*.playground/
+
+# Gatekeeper specifics
+.cache/
+.config/
+gatekeeper
+gatekeeper.log
+*.log
+state.json

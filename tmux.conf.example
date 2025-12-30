@@ -1,0 +1,13 @@
+# Gatekeeper integration for tmux
+# Add this to your ~/.tmux.conf
+
+# Display gatekeeper status in status-right
+# Option 1: Simple integration
+set -g status-right "#(~/.local/bin/gatekeeper-tmux) | #(date '+%%H:%%M')"
+
+# Option 2: With more styling (requires running daemon)
+# set -g status-right-length 100
+# set -g status-right "#[fg=cyan]#{session_name}#[default] | #(~/.local/bin/gatekeeper-tmux) | #(date '+%%H:%%M')"
+
+# Optional: Refresh status every 10 seconds (for accurate display)
+set -g status-interval 10

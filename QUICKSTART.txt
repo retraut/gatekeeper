@@ -1,0 +1,145 @@
+╔════════════════════════════════════════════════════════════════╗
+║         GATEKEEPER - Quick Start & Command Reference          ║
+╚════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 BUILD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Quick build everything:
+  $ ./build.sh
+
+  Build CLI only:
+  $ ./build.sh --cli
+
+  Build & install:
+  $ ./build.sh --cli --install
+
+  See more: ./build.sh --help
+  Or read: BUILD.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️  CONFIGURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Edit config:
+  $ nano ~/.config/gatekeeper/config.yaml
+
+  Example config:
+  services:
+    - name: AWS
+      check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
+      timeout: 10
+      retries: 2
+    
+    - name: GitHub
+      check_cmd: "gh auth status > /dev/null 2>&1"
+      timeout: 10
+      retries: 1
+
+  interval: 30
+  health_port: 8080  # Optional
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 RUN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Start daemon:
+  $ gatekeeper daemon
+
+  Check status (default):
+  $ gatekeeper status
+
+  Status (compact, for tmux):
+  $ gatekeeper status --compact
+
+  Status (JSON, for apps):
+  $ gatekeeper status --json
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 INTEGRATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  📡 tmux:
+    Add to ~/.tmux.conf:
+    set -g status-right "#(~/.local/bin/gatekeeper-tmux)"
+
+  🍎 macOS MenuBar:
+    cd GatekeeperApp
+    open GatekeeperApp.xcodeproj
+    # Build with Xcode, then run
+
+  🎨 WidgetKit Widgets:
+    - Build app first
+    - Right-click desktop → Edit Widgets
+    - Add Gatekeeper widget
+
+  🕐 Auto-start daemon:
+    launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 MONITORING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Check logs:
+  $ tail -f ~/.cache/gatekeeper/gatekeeper.log
+
+  View state:
+  $ cat ~/.cache/gatekeeper/state.json | jq .
+
+  Health endpoint (if configured):
+  $ curl http://localhost:8080/health
+  $ curl http://localhost:8080/status
+
+  Is daemon running?
+  $ ps aux | grep gatekeeper
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📂 IMPORTANT PATHS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Config:     ~/.config/gatekeeper/config.yaml
+  State:      ~/.cache/gatekeeper/state.json
+  Logs:       ~/.cache/gatekeeper/gatekeeper.log
+  Binary:     ~/.local/bin/gatekeeper
+  Tmux:       ~/.local/bin/gatekeeper-tmux
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📚 DOCUMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Build guide:        BUILD.md
+  Quick start:        README.md
+  Full setup:         SETUP.md
+  Architecture:       ARCHITECTURE.md
+  Project overview:   SUMMARY.md
+  File inventory:     PROJECT_FILES.md
+  Index & navigation: INDEX.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❓ TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Daemon not updating state?
+  → Check if running: ps aux | grep gatekeeper
+  → Check logs: tail -f ~/.cache/gatekeeper/gatekeeper.log
+
+  tmux not showing status?
+  → Test: gatekeeper status --compact
+  → Check path: which gatekeeper
+  → Reload: tmux source-file ~/.tmux.conf
+
+  Widget showing old data?
+  → Ensure daemon running
+  → Check state file exists: cat ~/.cache/gatekeeper/state.json
+
+  Build failed?
+  → Check Go: go version
+  → Check dependencies: go mod download
+  → See BUILD.md for detailed troubleshooting
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ready to get started? Run: ./build.sh
+
+Need help? Check: INDEX.md or SETUP.md
