@@ -129,6 +129,7 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v5
         with:
+          base: main
           commit-message: "chore: update brew formula to ${{ github.ref_name }}"
           title: "chore: update brew formula to ${{ github.ref_name }}"
           body: "Automatically updated brew formula with new SHA256 checksums for ${{ github.ref_name }}"
