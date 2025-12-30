@@ -9,8 +9,7 @@ build/
 *.dll
 *.dylib
 
-# Go mod
-go.sum
+# Go mod (go.sum is needed for CI/CD builds)
 
 # IDE
 .vscode/
