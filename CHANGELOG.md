@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/retraut/gatekeeper/compare/v0.5.0...v0.5.1) (2025-12-30)
+
+
+### Bug Fixes
+
+* update brew formula workflow to use workflow_run trigger ([eb17db6](https://github.com/retraut/gatekeeper/commit/eb17db687f0cfd4aca0c489ce9cc95a9c88d7186))
+
 ## [0.5.0](https://github.com/retraut/gatekeeper/compare/v0.4.2...v0.5.0) (2025-12-30)
 
 
