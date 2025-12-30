@@ -93,3 +93,4 @@
 - Improved workflow reliability
 - Fixed Brew formula update automation
 Fixed: workflow heredoc syntax and publish-release automation
+fix: publish artifacts directly on release event
