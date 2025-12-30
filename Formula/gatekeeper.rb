@@ -2,27 +2,27 @@ class Gatekeeper < Formula
   desc "Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI"
   homepage "https://github.com/retraut/gatekeeper"
   license "MIT"
-  version "v0.4.1"
+  version "v0.5.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/retraut/gatekeeper/releases/download/v0.4.1/gatekeeper-darwin-arm64"
-      sha256 "52390beb55ec5d5394598af1f02c650dbc3ac8db8c5671aa065ba4dcebb6446b"
+      url "https://github.com/retraut/gatekeeper/releases/download/v0.5.0/gatekeeper-darwin-arm64"
+      sha256 "5b9a76977fcb6cb8589219a9214cc5b6d5b9691d301e8cbf3515950fbdcf8f0b"
     end
     on_intel do
-      url "https://github.com/retraut/gatekeeper/releases/download/v0.4.1/gatekeeper-darwin-amd64"
-      sha256 "f08b2589019c523d1c6dc0fed948ac4ce64755af666e952da1e6be9588fb755e"
+      url "https://github.com/retraut/gatekeeper/releases/download/v0.5.0/gatekeeper-darwin-amd64"
+      sha256 "8da35a8a39989cc0ab8d96e87f1350fb035ff202e0aa88d6bbc3e6a9b48ebbf3"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/retraut/gatekeeper/releases/download/v0.4.1/gatekeeper-linux-arm64"
-      sha256 "8bcf66fed6f46a099e87b01b902eb9fa244128a41dd5417a574e4097924d9490"
+      url "https://github.com/retraut/gatekeeper/releases/download/v0.5.0/gatekeeper-linux-arm64"
+      sha256 "365f080d3b0758c1f38a4b928bbbe25403f039ab4dce92a61bd37c8b1c5d22fb"
     end
     on_intel do
-      url "https://github.com/retraut/gatekeeper/releases/download/v0.4.1/gatekeeper-linux-amd64"
-      sha256 "202f83ed84806fbb12769727631c09d58f5aacb8e35fc707f8d22766ccb47394"
+      url "https://github.com/retraut/gatekeeper/releases/download/v0.5.0/gatekeeper-linux-amd64"
+      sha256 "41bb22b169cb9656e1e106830d066df53693d7971c24f86caaefeb54b6cfd02c"
     end
   end
 
@@ -41,11 +41,11 @@ class Gatekeeper < Formula
                 "unknown"
               end
     
-    binary_name = "gatekeeper-#{os_name}-#{arch}"
+    binary_name = "gatekeeper-{os_name}-{arch}"
     bin.install binary_name => "gatekeeper"
   end
 
   test do
-    system "#{<built-in function bin>}/gatekeeper", "--help"
+    system "{{bin}}/gatekeeper", "--help"
   end
 end
