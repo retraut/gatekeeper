@@ -11,10 +11,13 @@ import (
 )
 
 var daemonLogger *Logger
+var daemonStartTime time.Time
 
 func runDaemon(config *Config) {
 	daemonLogger = NewLogger(LogInfo)
 	defer daemonLogger.Close()
+
+	daemonStartTime = time.Now()
 
 	// Save PID file
 	home, _ := os.UserHomeDir()
@@ -56,6 +59,14 @@ func runDaemon(config *Config) {
 func checkAndUpdateState(config *Config) {
 	ctx := context.Background()
 	state := &State{}
+
+	// Add daemon status
+	state.Daemon = &DaemonStatus{
+		Running:   true,
+		PID:       os.Getpid(),
+		StartedAt: daemonStartTime,
+		LastCheck: time.Now(),
+	}
 
 	// Create checker with enhanced features
 	checker := NewEnhancedChecker(CheckerOptions{

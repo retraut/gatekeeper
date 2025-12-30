@@ -4,10 +4,19 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type State struct {
+	Daemon   *DaemonStatus  `json:"daemon"`
 	Services []ServiceStatus `json:"services"`
+}
+
+type DaemonStatus struct {
+	Running   bool      `json:"running"`
+	PID       int       `json:"pid"`
+	StartedAt time.Time `json:"started_at"`
+	LastCheck time.Time `json:"last_check"`
 }
 
 func getStatePath() string {
