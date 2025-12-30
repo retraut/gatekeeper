@@ -38,7 +38,7 @@ jobs:
 
       - name: Update formula file
         run: |
-          cat > Formula/gatekeeper.rb << 'EOF'
+          cat > Formula/gatekeeper.rb << EOF
 class Gatekeeper < Formula
   desc "Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI"
   homepage "https://github.com/retraut/gatekeeper"
