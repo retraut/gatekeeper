@@ -156,12 +156,16 @@ interval: 30
 ## Commands
 
 ```bash
-gatekeeper daemon [--config path]   # Start daemon
 gatekeeper status                   # Show status
 gatekeeper status --compact         # Compact format
 gatekeeper status --json            # JSON format
 gatekeeper init                     # Create example config
 gatekeeper --help                   # Show help
+```
+
+**Manual daemon control** (if not using LaunchAgent):
+```bash
+gatekeeper daemon [--config path]   # Start daemon manually
 ```
 
 ## Integration
