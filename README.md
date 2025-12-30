@@ -53,6 +53,16 @@ chmod +x gatekeeper-darwin-arm64
 mv gatekeeper-darwin-arm64 /usr/local/bin/gatekeeper
 ```
 
+**Verify integrity:** Each binary has an associated `.sha256` file for verification:
+```bash
+# Download both files
+wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-arm64
+wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-arm64.sha256
+
+# Verify
+sha256sum -c gatekeeper-darwin-arm64.sha256
+```
+
 ### From Source
 ```bash
 git clone https://github.com/retraut/gatekeeper
