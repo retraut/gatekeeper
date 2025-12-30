@@ -32,7 +32,7 @@ jobs:
       - name: Download checksums
         run: |
           mkdir -p /tmp/checksums
-          gh release download ${{ github.ref_name }} -p "*.sha256" -D /tmp/checksums
+          gh release download ${{ github.ref_name }} -p "*.sha256" -D /tmp/checksums --skip-existing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
