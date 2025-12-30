@@ -41,11 +41,11 @@ class Gatekeeper < Formula
                 "unknown"
               end
     
-    binary_name = "gatekeeper-{os_name}-{arch}"
+    binary_name = "gatekeeper-#{os_name}-#{arch}"
     bin.install binary_name => "gatekeeper"
   end
 
   test do
-    system "{{bin}}/gatekeeper", "--help"
+    system "#{<built-in function bin>}/gatekeeper", "--help"
   end
 end
