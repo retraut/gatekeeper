@@ -47,6 +47,9 @@ func main() {
 	case "init":
 		handleInit()
 
+	case "stop":
+		handleStop()
+
 	default:
 		printUsage()
 		os.Exit(1)
@@ -98,17 +101,54 @@ interval: 30
 	fmt.Printf("Config created at: %s\n", configPath)
 }
 
+func handleStop() {
+	home, _ := os.UserHomeDir()
+	pidFile := filepath.Join(home, ".cache/gatekeeper/daemon.pid")
+	
+	pidBytes, err := os.ReadFile(pidFile)
+	if err != nil {
+		fmt.Println("Daemon not running (no PID file found)")
+		return
+	}
+	
+	pid := 0
+	fmt.Sscanf(string(pidBytes), "%d", &pid)
+	
+	if pid == 0 {
+		fmt.Println("Invalid PID file")
+		return
+	}
+	
+	// Kill the process
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		fmt.Printf("Process %d not found\n", pid)
+		// Clean up stale PID file
+		os.Remove(pidFile)
+		return
+	}
+	
+	err = process.Signal(os.Interrupt)
+	if err != nil {
+		log.Fatalf("Error stopping daemon: %v", err)
+	}
+	
+	fmt.Printf("Stopped daemon (PID %d)\n", pid)
+}
+
 func printUsage() {
 	fmt.Println(`Gatekeeper - Service authentication status monitor
 
 Usage:
   gatekeeper daemon [--config path]                   Start daemon (auto-uses ~/.config/gatekeeper/config.yaml)
+  gatekeeper stop                                      Stop daemon
   gatekeeper status [--json|--compact]                 Show current status
   gatekeeper init                                      Initialize config file
 
 Examples:
   gatekeeper daemon                                    # Uses default config
   gatekeeper daemon --config /custom/path/config.yaml # Uses custom config
+  gatekeeper stop
   gatekeeper status --compact
   gatekeeper status --json`)
 }
