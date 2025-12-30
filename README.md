@@ -119,7 +119,7 @@ EOF
 ### 2. Start Daemon
 
 ```bash
-gatekeeper daemon
+gatekeeper start
 ```
 
 ### 3. Check Status
@@ -165,7 +165,7 @@ gatekeeper --help                   # Show help
 
 **Manual daemon control** (if not using LaunchAgent):
 ```bash
-gatekeeper daemon [--config path]   # Start daemon manually
+gatekeeper start [--config path]    # Start daemon manually
 gatekeeper stop                     # Stop daemon gracefully
 ```
 

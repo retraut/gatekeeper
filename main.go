@@ -28,7 +28,7 @@ func main() {
 		statusCmd.Parse(os.Args[2:])
 		handleStatus(*jsonFlag, *compactFlag)
 
-	case "daemon":
+	case "start", "daemon":
 		daemonCmd.Parse(os.Args[2:])
 		
 		// Use default config path if not specified
@@ -140,14 +140,14 @@ func printUsage() {
 	fmt.Println(`Gatekeeper - Service authentication status monitor
 
 Usage:
-  gatekeeper daemon [--config path]                   Start daemon (auto-uses ~/.config/gatekeeper/config.yaml)
+  gatekeeper start [--config path]                    Start daemon (auto-uses ~/.config/gatekeeper/config.yaml)
   gatekeeper stop                                      Stop daemon
   gatekeeper status [--json|--compact]                 Show current status
   gatekeeper init                                      Initialize config file
 
 Examples:
-  gatekeeper daemon                                    # Uses default config
-  gatekeeper daemon --config /custom/path/config.yaml # Uses custom config
+  gatekeeper start                                     # Uses default config
+  gatekeeper start --config /custom/path/config.yaml  # Uses custom config
   gatekeeper stop
   gatekeeper status --compact
   gatekeeper status --json`)
