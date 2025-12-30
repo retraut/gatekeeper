@@ -59,7 +59,7 @@ jobs:
           LINUX_ARM64: ${{ env.LINUX_ARM64 }}
           LINUX_AMD64: ${{ env.LINUX_AMD64 }}
         run: |
-          python3 << 'EOFPYTHON'
+          python3 << 'EOF_PYTHON'
           import os
 
           version = os.environ.get('VERSION')
@@ -123,7 +123,7 @@ jobs:
 
           with open('Formula/gatekeeper.rb', 'w') as f:
               f.write(formula)
-          EOFPYTHON
+          EOF_PYTHON
 
       - name: Create Pull Request
         id: cpr
