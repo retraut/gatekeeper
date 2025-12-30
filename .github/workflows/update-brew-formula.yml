@@ -52,33 +52,39 @@ jobs:
           echo "LINUX_AMD64=$LINUX_AMD64" >> $GITHUB_ENV
 
       - name: Update formula file
+        env:
+          VERSION: ${{ github.ref_name }}
+          DARWIN_ARM64: ${{ env.DARWIN_ARM64 }}
+          DARWIN_AMD64: ${{ env.DARWIN_AMD64 }}
+          LINUX_ARM64: ${{ env.LINUX_ARM64 }}
+          LINUX_AMD64: ${{ env.LINUX_AMD64 }}
         run: |
-          cat > Formula/gatekeeper.rb << EOF
+          cat > Formula/gatekeeper.rb << 'ENDOFFILE'
 class Gatekeeper < Formula
   desc "Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI"
   homepage "https://github.com/retraut/gatekeeper"
   license "MIT"
-  version "${{ github.ref_name }}"
+  version "ENVVERSION"
 
   on_macos do
     on_arm do
-      url "https://github.com/retraut/gatekeeper/releases/download/${{ github.ref_name }}/gatekeeper-darwin-arm64"
-      sha256 "${{ env.DARWIN_ARM64 }}"
+      url "https://github.com/retraut/gatekeeper/releases/download/ENVVERSION/gatekeeper-darwin-arm64"
+      sha256 "ENVDARWIN_ARM64"
     end
     on_intel do
-      url "https://github.com/retraut/gatekeeper/releases/download/${{ github.ref_name }}/gatekeeper-darwin-amd64"
-      sha256 "${{ env.DARWIN_AMD64 }}"
+      url "https://github.com/retraut/gatekeeper/releases/download/ENVVERSION/gatekeeper-darwin-amd64"
+      sha256 "ENVDARWIN_AMD64"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/retraut/gatekeeper/releases/download/${{ github.ref_name }}/gatekeeper-linux-arm64"
-      sha256 "${{ env.LINUX_ARM64 }}"
+      url "https://github.com/retraut/gatekeeper/releases/download/ENVVERSION/gatekeeper-linux-arm64"
+      sha256 "ENVLINUX_ARM64"
     end
     on_intel do
-      url "https://github.com/retraut/gatekeeper/releases/download/${{ github.ref_name }}/gatekeeper-linux-amd64"
-      sha256 "${{ env.LINUX_AMD64 }}"
+      url "https://github.com/retraut/gatekeeper/releases/download/ENVVERSION/gatekeeper-linux-amd64"
+      sha256 "ENVLINUX_AMD64"
     end
   end
 
@@ -105,7 +111,14 @@ class Gatekeeper < Formula
     system "#{bin}/gatekeeper", "--help"
   end
 end
-EOF
+ENDOFFILE
+          
+          # Replace environment variable placeholders
+          sed -i "s/ENVVERSION/$VERSION/g" Formula/gatekeeper.rb
+          sed -i "s/ENVDARWIN_ARM64/$DARWIN_ARM64/g" Formula/gatekeeper.rb
+          sed -i "s/ENVDARWIN_AMD64/$DARWIN_AMD64/g" Formula/gatekeeper.rb
+          sed -i "s/ENVLINUX_ARM64/$LINUX_ARM64/g" Formula/gatekeeper.rb
+          sed -i "s/ENVLINUX_AMD64/$LINUX_AMD64/g" Formula/gatekeeper.rb
 
       - name: Create Pull Request
         id: cpr
