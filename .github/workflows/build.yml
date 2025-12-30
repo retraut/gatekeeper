@@ -33,7 +33,7 @@ jobs:
           CGO_ENABLED: 0
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gatekeeper-${{ matrix.os }}-${{ matrix.arch }}
           path: dist/
@@ -63,7 +63,7 @@ jobs:
           zip -r ../../../../../dist/GatekeeperApp-${{ matrix.arch }}.zip Gatekeeper.app
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: GatekeeperApp-${{ matrix.arch }}
           path: dist/
