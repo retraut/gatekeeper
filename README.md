@@ -7,6 +7,25 @@ Check if your AWS, GitHub, Docker, and other CLI tools are properly authenticate
 **GitHub:** https://github.com/retraut/gatekeeper  
 **Releases:** https://github.com/retraut/gatekeeper/releases
 
+## Contents
+
+- [Features](#features)
+- [Installation](#installation)
+  - [Homebrew](#homebrew-macos)
+  - [GitHub Releases](#from-github-releases)
+  - [From Source](#from-source)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Commands](#commands)
+- [Integration](#integration)
+  - [tmux](#tmux)
+  - [macOS Startup](#launch-on-macos-startup)
+  - [macOS Menu Bar App](#macos-menu-bar-app)
+- [File Locations](#file-locations)
+- [Documentation](#documentation)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+
 ## Features
 
 - **Daemon** - Background process checking services on interval
