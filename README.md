@@ -1,21 +1,29 @@
-# Gatekeeper CLI
+# Gatekeeper
 
 Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI.
+
+Check if your AWS, GitHub, Docker, and other CLI tools are properly authenticated—all from one place.
 
 **GitHub:** https://github.com/retraut/gatekeeper  
 **Releases:** https://github.com/retraut/gatekeeper/releases
 
-## Phase 1: Skeleton & Configuration ✅
+## Features
 
-- [x] Project initialization (`go mod init`)
-- [x] Config parser (YAML)
-- [x] Core daemon loop
-- [x] State manager (JSON cache)
-- [x] CLI skeleton
+- **Daemon** - Background process checking services on interval
+- **CLI** - Check status anytime from terminal
+- **Concurrent checks** - All services checked in parallel
+- **Configurable timeouts** - Per-service timeout handling
+- **Automatic retries** - Smart retry logic with exponential backoff
+- **tmux integration** - Status in your tmux status bar
+- **macOS Menu Bar** - Native SwiftUI app showing status at a glance
+- **WidgetKit** - Desktop and Lock Screen widgets
+- **JSON state** - Single source of truth
+- **Zero dependencies** - Only YAML parsing library
 
 ## Installation
 
-### Homebrew
+### Homebrew (macOS)
+
 ```bash
 brew tap retraut/gatekeeper
 brew install gatekeeper
@@ -64,6 +72,7 @@ sha256sum -c gatekeeper-darwin-arm64.sha256
 ```
 
 ### From Source
+
 ```bash
 git clone https://github.com/retraut/gatekeeper
 cd gatekeeper
@@ -73,179 +82,149 @@ mv gatekeeper /usr/local/bin/
 
 ## Quick Start
 
+### 1. Create Config
+
 ```bash
-# Initialize config
-gatekeeper init
+mkdir -p ~/.config/gatekeeper
+cat > ~/.config/gatekeeper/config.yaml << 'EOF'
+services:
+  - name: AWS
+    check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
+  - name: GitHub
+    check_cmd: "gh auth status > /dev/null 2>&1"
 
-# Start daemon
+interval: 30
+EOF
+```
+
+### 2. Start Daemon
+
+```bash
 gatekeeper daemon
+```
 
-# Check status (in another terminal)
+### 3. Check Status
+
+In another terminal:
+```bash
+gatekeeper status
 gatekeeper status --compact
 gatekeeper status --json
 ```
 
-## Config Format
+## Configuration
 
+Config file location: `~/.config/gatekeeper/config.yaml`
+
+**Basic example:**
 ```yaml
 services:
   - name: AWS
     check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
-    auth_cmd: "aws configure"
-
-interval: 30  # seconds
-```
-
-## Commands
-
-- `daemon [--config path]` - Start checking services on interval
-- `status [--json|--compact]` - Show current status
-- `init` - Create example config at `~/.config/gatekeeper/config.yaml`
-
-## Phase 2: Engine Enhancements ✅
-
-- [x] Structured logging with levels (DEBUG, INFO, WARN, ERROR)
-- [x] Timeout handling for commands (configurable per-service)
-- [x] Retry logic with exponential backoff
-- [x] Concurrent service checks (batch processing)
-- [x] Environment variable expansion in commands
-- [x] Better error handling and reporting
-
-### New Config Options
-
-```yaml
-services:
-  - name: AWS
-    check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
-    timeout: 10        # seconds
-    retries: 2         # number of attempts
+    timeout: 10
+    retries: 2
 
 interval: 30
 ```
 
-### Logs
+**Options:**
+- `services` - List of services to monitor
+- `interval` - Check interval in seconds (default: 30)
+- `check_cmd` - Command to verify authentication (must exit 0 for success)
+- `timeout` - Timeout per service in seconds (default: 5)
+- `retries` - Number of retries (default: 1)
 
-Logs are written to `~/.cache/gatekeeper/gatekeeper.log` with timestamps and levels.
-
-## Phase 3: tmux Integration ✅
-
-### Installation
+## Commands
 
 ```bash
-chmod +x install.sh
-./install.sh
+gatekeeper daemon [--config path]   # Start daemon
+gatekeeper status                   # Show status
+gatekeeper status --compact         # Compact format
+gatekeeper status --json            # JSON format
+gatekeeper init                     # Create example config
+gatekeeper --help                   # Show help
 ```
 
-This installs:
-- `~/.local/bin/gatekeeper` - main binary
-- `~/.local/bin/gatekeeper-tmux` - tmux helper script
+## Integration
 
-### tmux Setup
+### tmux
 
-Add to your `~/.tmux.conf`:
-
+Add to `~/.tmux.conf`:
 ```tmux
-set -g status-right "#(~/.local/bin/gatekeeper-tmux) | #(date '+%%H:%%M')"
-set -g status-interval 10
+set -g status-right "#(gatekeeper status --compact)"
+set -g status-interval 30
 ```
 
-Reload tmux:
+Then reload:
 ```bash
 tmux source-file ~/.tmux.conf
 ```
 
-### How it works
-
-- `gatekeeper daemon` runs in background, updating `~/.cache/gatekeeper/state.json` every 30 seconds
-- tmux calls `gatekeeper-tmux` which runs `gatekeeper status --compact`
-- Status appears in tmux status-right: `AWS:❌ GitHub:✅`
-
-### Launch on macOS startup
+### Launch on macOS Startup
 
 ```bash
 cp launch-agent.plist ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
-# Edit paths in plist if needed
 launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
 ```
 
-## Phase 4: macOS GUI (SwiftUI) & WidgetKit ✅
+### macOS Menu Bar App
 
-### MenuBar App
+For full macOS GUI (MenuBar app + Widgets):
 
-SwiftUI app that runs in system menu bar showing service status at a glance.
-
-**Features:**
-- Displays status icon (🔐) in menu bar
-- Click to open popover with:
-  - Service status list with live indicators
-  - Quick actions: Start Daemon, Edit Config, View Logs
-  - Auto-refresh every 10 seconds
-- Runs as background app (no dock icon)
-
-**Build:**
 ```bash
 cd GatekeeperApp
-open GatekeeperApp.xcodeproj
-# Build with Xcode or:
 xcodebuild -scheme Gatekeeper -configuration Release build
 ```
 
-### WidgetKit (Desktop & Lock Screen)
+Then drag the built app to Applications.
 
-Interactive widgets that display on macOS desktop or lock screen.
+## File Locations
 
-**Available Sizes:**
-- **Small**: Status indicator (✅/⚠️)
-- **Medium**: Service list with live status
-- **Large**: Detailed view with counters and full service list
+| File | Location | Purpose |
+|------|----------|---------|
+| Binary | `~/.local/bin/gatekeeper` | Main CLI |
+| Config | `~/.config/gatekeeper/config.yaml` | Service definitions |
+| State | `~/.cache/gatekeeper/state.json` | Current status |
+| Logs | `~/.cache/gatekeeper/gatekeeper.log` | Debug logs |
 
-**How to add:**
-1. Run Gatekeeper app from menu bar
-2. Right-click on desktop → Edit Widgets
-3. Search for "Gatekeeper" and add widget(s)
-4. Widgets auto-refresh every 30 seconds
+## Documentation
 
-### Architecture
+- **Getting Started** - [docs/01-getting-started.md](docs/01-getting-started.md)
+- **Build Guide** - [docs/build.md](docs/build.md)
+- **Architecture** - [docs/architecture.md](docs/architecture.md)
+- **Setup & Config** - [docs/setup.md](docs/setup.md)
+- **All Docs** - [docs/](docs/)
 
-```
-┌──────────────────────────────────┐
-│      go daemon (CLI)             │
-│  Updates ~/.cache/gatekeeper/    │
-│           state.json             │
-│  every 30 seconds                │
-└────────────┬──────────────────────┘
-             │
-             ↓ (reads)
-    ┌────────────────────┐
-    │  state.json        │
-    │  (JSON file)       │
-    └─────────┬──────────┘
-              │
-        ┌─────┴─────┐
-        ↓           ↓
-    ┌────────┐  ┌──────────┐
-    │ MenuBar│  │ WidgetKit│
-    │  App   │  │ Widgets  │
-    └────────┘  └──────────┘
-    (every 10s) (every 30s)
+## Troubleshooting
+
+**"Command not found: gatekeeper"**
+```bash
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
-### Data Flow
+**"Build failed"**
+```bash
+go mod download
+go build -o gatekeeper
+```
 
-- **Go daemon** checks services, writes to `~/.cache/gatekeeper/state.json`
-- **MenuBar app** reads state every 10 seconds, displays in menu bar
-- **WidgetKit** reads state every 30 seconds, updates desktop/lock screen widgets
-- All three operate independently, zero coupling
-
-See [GatekeeperApp/BUILD.md](GatekeeperApp/BUILD.md) for detailed build instructions.
+**"Daemon not updating state"**
+```bash
+ps aux | grep gatekeeper
+tail -f ~/.cache/gatekeeper/gatekeeper.log
+```
 
 ## Contributing
 
-This project uses **Conventional Commits** for automated versioning and release management.
+This project uses **Conventional Commits** for automated versioning.
 
 When committing, use the format:
 - `feat: Add new feature` → triggers minor version bump
 - `fix: Fix a bug` → triggers patch version bump
 - `feat!: Breaking change` → triggers major version bump
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+See [docs/contributing.md](docs/contributing.md) for more details.
+
+## License
+
+MIT
