@@ -18,7 +18,7 @@ class Gatekeeper < Formula
   on_linux do
     on_arm do
       url "https://github.com/retraut/gatekeeper/releases/download/v0.5.2/gatekeeper-linux-arm64"
-      sha256 ""
+      sha256 "9a26ba69e65e3bbbede6fc4c6d5b565d47527056f60d9bd753c334548f1987cf"
     end
     on_intel do
       url "https://github.com/retraut/gatekeeper/releases/download/v0.5.2/gatekeeper-linux-amd64"
