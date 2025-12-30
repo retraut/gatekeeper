@@ -123,7 +123,7 @@ func handleStop() {
 	// Kill the process
 	process, err := os.FindProcess(pid)
 	if err != nil {
-		fmt.Printf("Process %d not found\n", pid)
+		fmt.Printf("Process %d not found (already stopped)\n", pid)
 		// Clean up stale PID file
 		os.Remove(pidFile)
 		return
@@ -131,7 +131,10 @@ func handleStop() {
 	
 	err = process.Signal(os.Interrupt)
 	if err != nil {
-		log.Fatalf("Error stopping daemon: %v", err)
+		// Process may have already finished, just clean up
+		fmt.Printf("Process %d already stopped\n", pid)
+		os.Remove(pidFile)
+		return
 	}
 	
 	// Clean up PID file
