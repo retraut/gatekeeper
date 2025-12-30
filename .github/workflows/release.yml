@@ -179,11 +179,11 @@ EOF
           
           sed -i "s|VERSION_NUM|$VERSION_NUM|g" gatekeeper.rb
           sed -i "s|VERSION|${{ steps.version.outputs.VERSION }}|g" gatekeeper.rb
-          sed -i "s|MACOS_AMD64_SHA|$MACOS_AMD64_SHA|g" gatekeeper.rb
-          sed -i "s|MACOS_ARM64_SHA|$MACOS_ARM64_SHA|g" gatekeeper.rb
-          sed -i "s|LINUX_AMD64_SHA|$LINUX_AMD64_SHA|g" gatekeeper.rb
-          sed -i "s|LINUX_ARM64_SHA|$LINUX_ARM64_SHA|g" gatekeeper.rb
-          sed -i "s|APP_SHA|$APP_SHA|g" gatekeeper.rb
+          sed -i "s|MACOS_AMD64_SHA|${MACOS_AMD64_SHA}|g" gatekeeper.rb
+          sed -i "s|MACOS_ARM64_SHA|${MACOS_ARM64_SHA}|g" gatekeeper.rb
+          sed -i "s|LINUX_AMD64_SHA|${LINUX_AMD64_SHA}|g" gatekeeper.rb
+          sed -i "s|LINUX_ARM64_SHA|${LINUX_ARM64_SHA}|g" gatekeeper.rb
+          sed -i "s|APP_SHA|${APP_SHA}|g" gatekeeper.rb
 
       - name: Upload formula to release
         run: |
