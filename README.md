@@ -43,14 +43,12 @@ Check if your AWS, GitHub, Docker, and other CLI tools are properly authenticate
 
 ### Homebrew (macOS)
 
-```bash
-brew tap retraut/gatekeeper
-brew install gatekeeper
-```
+Coming soon! For now, use one of the other installation methods below.
 
-Or one-liner:
 ```bash
-brew install retraut/gatekeeper/gatekeeper
+# Once tap is available:
+# brew tap retraut/gatekeeper
+# brew install gatekeeper
 ```
 
 ### From GitHub Releases
