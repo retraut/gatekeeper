@@ -1,8 +1,10 @@
 name: Update Brew Formula
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: write
@@ -11,13 +13,23 @@ permissions:
 jobs:
   update-formula:
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v4
+
+      - name: Get latest release tag
+        id: release
+        run: |
+          TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
+          echo "tag_name=$TAG" >> $GITHUB_OUTPUT
+          echo "Latest release: $TAG"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Wait for release artifacts
         run: |
           for i in {1..30}; do
-            if gh release download ${{ github.ref_name }} -p "*.sha256" -D /tmp/checksums 2>/dev/null; then
+            if gh release download ${{ steps.release.outputs.tag_name }} -p "*.sha256" -D /tmp/checksums 2>/dev/null; then
               echo "Artifacts found!"
               exit 0
             fi
@@ -32,7 +44,7 @@ jobs:
       - name: Download checksums
         run: |
           mkdir -p /tmp/checksums
-          gh release download ${{ github.ref_name }} -p "*.sha256" -D /tmp/checksums --skip-existing
+          gh release download ${{ steps.release.outputs.tag_name }} -p "*.sha256" -D /tmp/checksums --skip-existing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -53,7 +65,7 @@ jobs:
 
       - name: Update formula file
         env:
-          VERSION: ${{ github.ref_name }}
+          VERSION: ${{ steps.release.outputs.tag_name }}
           DARWIN_ARM64: ${{ env.DARWIN_ARM64 }}
           DARWIN_AMD64: ${{ env.DARWIN_AMD64 }}
           LINUX_ARM64: ${{ env.LINUX_ARM64 }}
@@ -130,10 +142,10 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           base: main
-          commit-message: "chore: update brew formula to ${{ github.ref_name }}"
-          title: "chore: update brew formula to ${{ github.ref_name }}"
-          body: "Automatically updated brew formula with new SHA256 checksums for ${{ github.ref_name }}"
-          branch: update-brew-formula-${{ github.ref_name }}
+          commit-message: "chore: update brew formula to ${{ steps.release.outputs.tag_name }}"
+          title: "chore: update brew formula to ${{ steps.release.outputs.tag_name }}"
+          body: "Automatically updated brew formula with new SHA256 checksums for ${{ steps.release.outputs.tag_name }}"
+          branch: update-brew-formula-${{ steps.release.outputs.tag_name }}
           delete-branch: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
