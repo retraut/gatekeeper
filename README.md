@@ -68,8 +68,6 @@ interval: 30  # seconds
 - [x] Timeout handling for commands (configurable per-service)
 - [x] Retry logic with exponential backoff
 - [x] Concurrent service checks (batch processing)
-- [x] on_failure actions (run command when service goes down)
-- [x] HTTP health check endpoint (`/health`, `/status`)
 - [x] Environment variable expansion in commands
 - [x] Better error handling and reporting
 
@@ -83,21 +81,11 @@ services:
     retries: 2         # number of attempts
 
 interval: 30
-health_port: 8080   # Optional HTTP health endpoint
 ```
 
 ### Logs
 
 Logs are written to `~/.cache/gatekeeper/gatekeeper.log` with timestamps and levels.
-
-### Health Endpoint
-
-If configured, access health status:
-
-```bash
-curl http://localhost:8080/health    # Overall health
-curl http://localhost:8080/status    # Detailed service status
-```
 
 ## Phase 3: tmux Integration ✅
 
