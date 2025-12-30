@@ -162,9 +162,40 @@ tmux source-file ~/.tmux.conf
 
 ### Launch on macOS Startup
 
+Install the LaunchAgent to run daemon automatically on login:
+
 ```bash
+# Copy LaunchAgent plist
 cp launch-agent.plist ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
+
+# Load it
 launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
+```
+
+Now daemon starts automatically on login and restarts if it crashes.
+
+**Manage the daemon:**
+```bash
+# Check if running
+launchctl list | grep gatekeeper
+
+# View logs
+tail -f /var/log/gatekeeper.log
+tail -f /var/log/gatekeeper.err
+
+# Stop daemon
+launchctl unload ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
+
+# Start daemon again
+launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
+
+# Reload after config changes
+launchctl unload ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
+launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
+
+# Remove completely
+rm ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
+launchctl remove com.gatekeeper.daemon
 ```
 
 ### macOS Menu Bar App
