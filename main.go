@@ -28,7 +28,7 @@ func main() {
 		statusCmd.Parse(os.Args[2:])
 		handleStatus(*jsonFlag, *compactFlag)
 
-	case "start", "daemon":
+	case "start":
 		daemonCmd.Parse(os.Args[2:])
 		
 		// Use default config path if not specified
