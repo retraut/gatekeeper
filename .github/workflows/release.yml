@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - main
+  release:
+    types: [published]
 
 jobs:
   release-please:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -21,9 +24,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   publish-release:
-    needs: release-please
     runs-on: ${{ matrix.runs-on }}
-    if: ${{ needs.release-please.outputs.release_created }}
+    if: github.event_name == 'release'
     strategy:
       matrix:
         include:
@@ -45,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.release-please.outputs.tag_name }}
+          ref: ${{ github.event.release.tag_name }}
 
       - name: Set up Go
         uses: actions/setup-go@v4
