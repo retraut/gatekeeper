@@ -14,6 +14,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Wait for release artifacts
+        run: |
+          for i in {1..30}; do
+            if gh release download ${{ github.ref_name }} -p "*.sha256" -D /tmp/checksums 2>/dev/null; then
+              echo "Artifacts found!"
+              exit 0
+            fi
+            echo "Waiting for artifacts... (attempt $i/30)"
+            sleep 2
+          done
+          echo "Timeout waiting for artifacts"
+          exit 1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Download checksums
         run: |
           mkdir -p /tmp/checksums
