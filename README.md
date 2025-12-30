@@ -63,7 +63,6 @@ services:
     check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
     timeout: 10        # seconds
     retries: 2         # number of attempts
-    on_failure: "notify-team"  # optional command to run on failure
 
 interval: 30
 health_port: 8080   # Optional HTTP health endpoint
