@@ -2,10 +2,10 @@
 
 ## What Is Gatekeeper?
 
-Gatekeeper is a service authentication status monitor that checks if your CLI tools (AWS, GitHub, Docker, etc.) are properly authenticated. It displays status in multiple places:
-- **Menu bar** (always visible)
-- **Desktop/Lock screen widgets** (WidgetKit)
+Gatekeeper is a service authentication status monitor that checks if your CLI tools (AWS, GitHub, Docker, etc.) are properly authenticated. It displays status in:
 - **tmux status bar** (for terminal users)
+- **CLI** (on-demand status checks)
+- **JSON output** (for custom integrations)
 
 All with a single daemon running in the background.
 
@@ -30,10 +30,11 @@ All with a single daemon running in the background.
 - Installation script
 - LaunchAgent for auto-start
 
-**Phase 4: macOS GUI**
-- SwiftUI MenuBar app
-- WidgetKit (Small/Medium/Large sizes)
-- Desktop & Lock screen widgets
+**Phase 4: Shell Completions & Quick Auth**
+- Zsh shell completions
+- Quick re-authentication (`gatekeeper auth`)
+- Service name auto-complete
+- Batch authentication support
 
 ## Installation (Quick)
 
@@ -68,9 +69,10 @@ gatekeeper status              # For humans
 - **Real-time sync** - Daemon updates every N seconds
 
 ### Integrations
-- **tmux**: Status in menu bar
-- **MenuBar**: Always-visible app icon
-- **Widgets**: Desktop/Lock screen display
+- **tmux**: Status in status bar
+- **Shell completions**: Auto-complete for zsh
+- **Quick auth**: One-command re-authentication
+- **JSON output**: For custom tools and scripts
 
 ### Monitoring
 - **Structured logs** - Timestamped, searchable
@@ -80,27 +82,19 @@ gatekeeper status              # For humans
 
 ```
 gatekeeper/
-├── (Go CLI)
-│   ├── main.go                  # Entry point
-│   ├── config.go                # YAML config
-│   ├── daemon.go                # Main loop
-│   ├── checker_enhanced.go      # Advanced checks
-│   ├── logger.go                # Logging
-│   ├── state.go                 # Persistence
-│   ├── helpers.go               # Formatting
-│   ├── gatekeeper               # Compiled binary
-│   ├── config.yaml.example      # Example config
-│   ├── install.sh               # Install script
-│   ├── gatekeeper-tmux.sh       # tmux helper
-│   ├── launch-agent.plist       # macOS auto-start
-│   └── go.mod
-│
-└── GatekeeperApp/               # macOS SwiftUI app
-    ├── Gatekeeper.swift         # MenuBar app
-    ├── GatekeeperWidget.swift   # WidgetKit
-    ├── Info.plist               # App config
-    ├── BUILD.md                 # Build instructions
-    └── GatekeeperApp.xcodeproj  # Xcode project
+├── main.go                  # Entry point
+├── config.go                # YAML config
+├── daemon.go                # Main loop
+├── checker_enhanced.go      # Advanced checks
+├── logger.go                # Logging
+├── state.go                 # Persistence
+├── helpers.go               # Formatting
+├── gatekeeper               # Compiled binary
+├── config.yaml.example      # Example config
+├── build.sh                 # Build script
+├── gatekeeper-tmux.sh       # tmux helper
+├── launch-agent.plist       # macOS auto-start
+└── go.mod                   # Dependencies
 ```
 
 ## Configuration Example
@@ -151,29 +145,31 @@ set -g status-interval 10
 
 Result: `AWS:✅ GitHub:❌` appears in tmux status bar
 
-## MenuBar App
+## Quick Auth
 
+Re-authenticate services quickly:
 ```bash
-cd GatekeeperApp
-xcodebuild -scheme Gatekeeper -configuration Release build
-open build/Release/Gatekeeper.app
+# Single service
+gatekeeper auth github
+
+# All AWS services (partial match)
+gatekeeper auth aws
+
+# All services
+gatekeeper auth all
+```
+
+## Shell Completions
+
+Install zsh completions:
+```bash
+gatekeeper completion install
 ```
 
 Features:
-- Click icon to see status popover
-- Start daemon
-- Edit config
-- View logs
-- All from menu bar
-
-## WidgetKit
-
-1. Build MenuBar app (see above)
-2. Right-click desktop → Edit Widgets
-3. Search "Gatekeeper" and add widget
-4. Choose size: Small (status), Medium (list), Large (detailed)
-
-Widgets refresh every 30 seconds automatically.
+- Auto-complete service names
+- Command descriptions
+- Flag suggestions
 
 ## Data Flow
 
@@ -181,11 +177,10 @@ Widgets refresh every 30 seconds automatically.
 go daemon (every 30s)
     ↓ writes
 ~/.cache/gatekeeper/state.json
-    ↓ reads (every 10s-30s)
-├── MenuBar App
-├── WidgetKit Widgets  
-├── tmux status bar
-└── HTTP endpoints
+    ↓ reads
+├── CLI (on demand)
+├── tmux status bar (configurable interval)
+└── Custom tools (via JSON)
 ```
 
 ## Monitoring/Debugging
@@ -208,59 +203,58 @@ cat ~/.cache/gatekeeper/state.json | jq .
 ## Performance
 
 - **Daemon memory**: ~5-10MB
-- **MenuBar app**: ~20MB
-- **WidgetKit**: ~30MB  
+- **Binary size**: ~2.7MB
 - **Check latency**: 1-10s per service (configurable)
-- **Refresh latency**: <100ms for UI
+- **State read latency**: <100ms
+- **Concurrent checks**: All services checked in parallel
 
 ## Next Steps
 
 1. **Customize config** - Edit `~/.config/gatekeeper/config.yaml`
-2. **Start daemon** - `gatekeeper daemon`
+2. **Start daemon** - `gatekeeper start`
 3. **Add to tmux** - Edit `~/.tmux.conf` and reload
-4. **Build macOS app** - Open `GatekeeperApp/GatekeeperApp.xcodeproj` in Xcode
-5. **Add widgets** - Right-click desktop, add Gatekeeper widgets
+4. **Install completions** - `gatekeeper completion install`
+5. **Test auth command** - `gatekeeper auth <service>`
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
 | State not updating | Verify daemon is running: `ps aux \| grep gatekeeper` |
-| Widget shows old data | Ensure `~/.cache/gatekeeper/state.json` exists and is recent |
 | tmux status not showing | Check binary path: `which gatekeeper` |
-| MenuBar app crashes | Check logs: `log stream --predicate 'process == "Gatekeeper"'` |
+| Auth command fails | Verify service has `auth_cmd` in config |
+| Completions not working | Check `fpath` in `.zshrc`, restart shell |
 | Commands timing out | Increase timeout in config for that service |
 
 ## Architecture Highlights
 
-- **Zero coupling** - CLI, MenuBar, Widgets, tmux all independent
+- **Zero coupling** - CLI and tmux integration are independent
 - **Single source of truth** - state.json is central
 - **Concurrent checks** - Services checked in parallel
 - **Modular design** - Easy to extend and customize
-- **Cross-platform ready** - Go daemon runs on any OS, SwiftUI on macOS
+- **Cross-platform** - Go daemon runs on any OS (Linux, macOS, Windows)
 
 ## What's Not Included
 
-- macOS system tray notifications (can be added)
+- Notifications (removed in v0.5.x due to macOS deprecation)
 - Database storage (JSON file is simpler)
 - Web dashboard
-- iOS app (macOS WidgetKit focused)
+- macOS MenuBar app (future possibility - see TODO.md)
+- Widgets (future possibility - see TODO.md)
 
 ## Future Extensions
 
-1. Add Linux systemd integration
-2. Add Windows installer
-3. Build web dashboard frontend
-4. Add Slack bot interactions
-5. Support for custom health check formats
-6. Status history/graphs
-7. Alerting rules engine
-8. Multi-service dependencies
+See [TODO.md](../TODO.md) for potential future features:
+- macOS MenuBar app
+- WidgetKit widgets
+- Bash/Fish completions
+- Config validation
+- And more...
 
 ---
 
 **For detailed information:**
+- Quick start: See [README.md](../README.md)
 - Setup guide: See [SETUP.md](SETUP.md)
 - Architecture: See [ARCHITECTURE.md](ARCHITECTURE.md)
-- Build instructions: See [GatekeeperApp/BUILD.md](GatekeeperApp/BUILD.md)
-- Quick start: See [README.md](README.md)
+- Future features: See [TODO.md](../TODO.md)

@@ -13,19 +13,18 @@
 ## 🏗️ Implementation Status
 
 ✅ **Phase 1**: Skeleton & Configuration
-✅ **Phase 2**: Engine Enhancements  
+✅ **Phase 2**: Engine Enhancements
 ✅ **Phase 3**: tmux Integration
-✅ **Phase 4**: macOS GUI (SwiftUI & WidgetKit)
+✅ **Phase 4**: Shell Completions & Quick Auth
 
 ## 📂 Project Structure
 
 ```
 gatekeeper/
-├── CLI (Go)           → 11 source files, ~594 lines
-├── App (SwiftUI)      → 2 source files, ~460 lines  
-├── Installation       → 4 files (scripts, configs)
-├── Documentation      → 7 markdown files
-└── Configuration      → 3 example configs
+├── CLI (Go)           → Go source files
+├── Installation       → Scripts, configs
+├── Documentation      → Markdown files
+└── Configuration      → Example configs
 ```
 
 ## 🚀 Quick Start
@@ -53,18 +52,8 @@ gatekeeper status --compact
 - Timeouts & retries
 - JSON state file
 - Structured logging
-
-### MenuBar App (SwiftUI)
-- System menu bar icon
-- Status popover
-- Quick actions
-- Auto-refresh
-
-### WidgetKit (SwiftUI)
-- Desktop widgets
-- Lock screen widgets
-- 3 size options
-- Auto-update
+- Quick re-authentication
+- Shell completions
 
 ### tmux Integration (Bash)
 - Status bar display
@@ -74,14 +63,12 @@ gatekeeper status --compact
 
 | Document | Best For | Read Time |
 |----------|----------|-----------|
-| BUILD.md | How to build | 5 min |
-| SUMMARY.md | Understanding the project | 5 min |
 | README.md | Getting started | 3 min |
+| SUMMARY.md | Understanding the project | 5 min |
 | SETUP.md | Installation & configuration | 10 min |
 | ARCHITECTURE.md | Understanding design | 15 min |
 | CHECKLIST.md | Verifying completeness | 3 min |
 | PROJECT_FILES.md | File reference | 5 min |
-| GatekeeperApp/BUILD.md | Building macOS app | 5 min |
 
 ## 🔧 For Different Use Cases
 
@@ -91,8 +78,8 @@ gatekeeper status --compact
 **Want tmux integration:**
 → Read: SETUP.md section "Integration: tmux"
 
-**Want macOS app:**
-→ Read: GatekeeperApp/BUILD.md
+**Want shell completions:**
+→ Read: README.md section "Shell Completions"
 
 **Want to understand architecture:**
 → Read: ARCHITECTURE.md
@@ -116,14 +103,8 @@ go.mod               - Dependencies
 
 ### Shell Scripts
 ```
-install.sh           - Installation script
+build.sh             - Build script
 gatekeeper-tmux.sh   - tmux helper
-```
-
-### Swift Source
-```
-Gatekeeper.swift     - MenuBar app
-GatekeeperWidget.swift - WidgetKit
 ```
 
 ### Configuration
@@ -152,8 +133,8 @@ launch-agent.plist   - Auto-start config
 ### Advanced
 1. Read ARCHITECTURE.md
 2. Understand data flow
-3. Build Swift app
-4. Customize widgets
+3. Customize service checks
+4. Add custom integrations
 
 ## 🔍 Finding Things
 
@@ -172,8 +153,8 @@ launch-agent.plist   - Auto-start config
 **"How do I integrate with tmux?"**
 → SETUP.md → "Integration: tmux"
 
-**"How do I build the app?"**
-→ GatekeeperApp/BUILD.md
+**"How do I use auth command?"**
+→ README.md → "Quick Re-authentication"
 
 **"How does it work?"**
 → ARCHITECTURE.md
@@ -187,7 +168,7 @@ launch-agent.plist   - Auto-start config
 → All services checked in parallel, not sequentially
 
 **Independent Components**
-→ CLI, MenuBar, Widgets, tmux all work independently
+→ CLI, tmux integration work independently
 
 **Zero Dependencies**
 → Only YAML parsing library required
@@ -197,13 +178,12 @@ launch-agent.plist   - Auto-start config
 
 ## 📊 Quick Stats
 
-- **Total Lines of Code**: ~1054
+- **Total Lines of Code**: ~800
 - **Total Documentation**: ~2000 lines
-- **Go Source Files**: 11
-- **Swift Source Files**: 2
+- **Go Source Files**: 8
 - **Build Time**: <5 seconds
-- **Binary Size**: 8.5 MB
-- **Runtime Memory**: 5-30 MB
+- **Binary Size**: ~2.7 MB
+- **Runtime Memory**: ~5-10 MB
 
 ## ✨ Special Features
 
@@ -219,9 +199,9 @@ launch-agent.plist   - Auto-start config
 
 **Rich Integrations**
 - tmux status bar
-- macOS menu bar
-- Desktop widgets
-- Lock screen widgets
+- Shell completions (zsh)
+- Quick re-authentication
+- JSON output for custom tools
 
 **Advanced Configuration**
 - Per-service timeouts
@@ -230,26 +210,26 @@ launch-agent.plist   - Auto-start config
 
 ## 🐛 Troubleshooting
 
-**App won't build?**
-→ Check: Xcode version, iOS deployment target
-
 **Daemon not updating?**
 → Check: `ps aux | grep gatekeeper`, logs
 
-**Widget won't show?**
-→ Check: Daemon running, state.json exists
-
 **tmux not working?**
 → Check: Binary path, config reload
+
+**Auth command not found?**
+→ Check: Service has `auth_cmd` in config
+
+**Completions not working?**
+→ Check: `fpath` in `.zshrc`, restart shell
 
 See: SETUP.md → "Troubleshooting"
 
 ## 🔗 Links
 
+- [README.md](../README.md) - Quick start guide
 - [SUMMARY.md](SUMMARY.md) - Project overview
 - [SETUP.md](SETUP.md) - Setup guide
 - [ARCHITECTURE.md](ARCHITECTURE.md) - System design
-- [GatekeeperApp/BUILD.md](GatekeeperApp/BUILD.md) - App build guide
 
 ## 📞 Support
 
@@ -258,6 +238,6 @@ Check the appropriate doc file above for your question.
 
 ---
 
-**Last Updated**: 2025-12-30
-**Project Status**: Complete ✅
-**Version**: 1.0 (All 4 phases complete)
+**Last Updated**: 2025-12-31
+**Project Status**: Active Development ✅
+**Version**: 0.5.x

@@ -7,6 +7,28 @@ Check if your AWS, GitHub, Docker, and other CLI tools are properly authenticate
 **GitHub:** https://github.com/retraut/gatekeeper
 **Releases:** https://github.com/retraut/gatekeeper/releases
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Installation](#installation)
+  - [Homebrew (macOS)](#homebrew-macos)
+  - [From GitHub Releases](#from-github-releases)
+  - [From Source](#from-source)
+- [Configuration](#configuration)
+- [Quick Re-authentication](#quick-re-authentication)
+- [Commands](#commands)
+- [Shell Completions](#shell-completions)
+- [Build Options](#build-options)
+- [Integration](#integration)
+  - [tmux](#tmux)
+  - [macOS Auto-start](#macos-auto-start)
+- [File Locations](#file-locations)
+- [Examples](#examples)
+- [Troubleshooting](#troubleshooting)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+
 ## Quick Start
 
 ```bash
@@ -30,10 +52,9 @@ gatekeeper status --compact
 - **Concurrent checks** - All services checked in parallel
 - **Configurable timeouts** - Per-service timeout handling
 - **Automatic retries** - Smart retry logic with exponential backoff
-- **Smart notifications** - macOS notifications when auth fails (no spam, one per service)
 - **tmux integration** - Status in your tmux status bar
-- **macOS Menu Bar** - Native SwiftUI app showing status at a glance
-- **WidgetKit** - Desktop and Lock Screen widgets
+- **Shell completions** - Zsh auto-complete for services and commands
+- **Quick auth** - One command to re-authenticate services
 - **JSON state** - Single source of truth
 - **Zero dependencies** - Only YAML parsing library
 
@@ -372,22 +393,6 @@ tail -f /var/log/gatekeeper.log
 launchctl unload ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
 launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
 ```
-
-### macOS Menu Bar App
-
-Build app with Xcode:
-
-```bash
-cd GatekeeperApp
-xcodebuild -scheme Gatekeeper -configuration Release build
-```
-
-Then drag to Applications.
-
-For widgets:
-1. Build app first
-2. Right-click desktop → Edit Widgets
-3. Add Gatekeeper widget
 
 ## File Locations
 

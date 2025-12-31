@@ -33,22 +33,20 @@
       │ }                  │
       └────────┬───────────┘
                │
-    ┌──────────┼──────────┐
-    │          │          │
-    │ reads    │ reads    │ reads
-    │ every    │ every    │ every
-    │ 10s      │ 30s      │ 30s
-    ↓          ↓          ↓
- ┌──────┐  ┌──────────┐  ┌────────┐
- │MenuBar│  │WidgetKit │  │ tmux   │
- │  App  │  │ Widgets  │  │ Status │
- │(Swift)│  │ (Swift)  │  │(Bash)  │
- └──────┘  └──────────┘  └────────┘
-     │         │            │
-   Shows     Shows        Shows
-   status    widgets      in tmux
-   in menu   on desktop   status
-   bar       /lock screen bar
+    ┌──────────┴──────────┐
+    │                     │
+    │ reads               │ reads
+    │ on demand           │ every 30s
+    ↓                     ↓
+ ┌────────┐           ┌────────┐
+ │  CLI   │           │ tmux   │
+ │ status │           │ Status │
+ │ (Go)   │           │(Bash)  │
+ └────────┘           └────────┘
+     │                    │
+   Shows               Shows
+   status on           status in
+   terminal            tmux bar
 ```
 
 ## Component Breakdown
@@ -97,83 +95,7 @@
      ↓ repeat
 ```
 
-### 2. MenuBar App (macOS - Swift)
-
-**Files:**
-- `Gatekeeper.swift` - Main app + menubar view
-- `Info.plist` - App configuration
-
-**Architecture:**
-```
-AppDelegate (NSApplicationDelegate)
-    ├─ Creates NSStatusBar item (🔐)
-    ├─ Creates NSPopover view
-    └─ Handles toggle action
-
-GatekeeperViewModel (ObservableObject)
-    ├─ Loads state.json every 10s
-    ├─ Publishes @Published state
-    └─ Timer-based refresh
-
-MenuBarView (SwiftUI)
-    ├─ Shows service status list
-    ├─ Action buttons:
-    │  ├─ Start Daemon
-    │  ├─ Edit Config
-    │  ├─ View Logs
-    │  └─ Quit
-    └─ Auto-refresh on timer
-```
-
-**Data Flow:**
-```
-~/.cache/gatekeeper/state.json
-         ↓
-    ViewModel.loadState()
-         ↓
-  @Published state updated
-         ↓
-  MenuBarView re-renders
-         ↓
-   UI shows live status
-```
-
-### 3. WidgetKit (macOS - Swift)
-
-**Files:**
-- `GatekeeperWidget.swift` - All widget logic
-
-**Timeline:**
-```
-TimelineProvider
-    ├─ placeholder() - Shows while loading
-    ├─ getSnapshot() - Current snapshot
-    └─ getTimeline() - Future updates
-
-Widget Sizes:
-├─ SmallWidgetView - Status indicator
-├─ MediumWidgetView - Service list
-└─ LargeWidgetView - Detailed view
-
-Refresh Policy:
-└─ Every 30 seconds (aligned with daemon)
-```
-
-**Data Flow:**
-```
-~/.cache/gatekeeper/state.json
-         ↓
-  WidgetProvider.getTimeline()
-    (every 30s)
-         ↓
-  Decode JSON → State object
-         ↓
-  Render appropriate widget size
-         ↓
-   Desktop/Lock screen display
-```
-
-### 4. tmux Integration (Bash)
+### 2. tmux Integration (Bash)
 
 **Files:**
 - `gatekeeper-tmux.sh` - Status formatter
@@ -233,8 +155,8 @@ Save results atomically
 ```
 
 ### UI Refresh
-- **MenuBar**: Sequential timer (10s intervals)
-- **WidgetKit**: Timeline-based (30s intervals)
+- **CLI**: On-demand (when user runs `gatekeeper status`)
+- **tmux**: Interval-based (configured via `status-interval`)
 
 ## Failure Handling
 
@@ -285,11 +207,6 @@ Examples:
 
 ~/Library/LaunchAgents/
     └─ com.gatekeeper.daemon.plist  # Auto-start config
-
-GatekeeperApp.xcodeproj/        # Xcode project for macOS app
-    ├─ Gatekeeper.swift         # MenuBar app
-    ├─ GatekeeperWidget.swift   # WidgetKit
-    └─ Info.plist               # App configuration
 ```
 
 ## Performance Characteristics
@@ -297,9 +214,8 @@ GatekeeperApp.xcodeproj/        # Xcode project for macOS app
 | Component | Refresh Rate | Latency | CPU | Memory |
 |-----------|-------------|---------|-----|--------|
 | Daemon | N seconds (config) | ~1-10s per check | Low | ~5-10MB |
-| MenuBar | 10 seconds | <100ms | Minimal | ~20MB |
-| WidgetKit | 30 seconds | <100ms | Minimal | ~30MB |
-| tmux | On demand | <100ms | Minimal | <1MB |
+| CLI | On demand | <100ms | Minimal | <1MB |
+| tmux | Configured interval | <100ms | Minimal | <1MB |
 
 ## Security Considerations
 
