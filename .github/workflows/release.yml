@@ -38,9 +38,6 @@ jobs:
           - os: darwin
             arch: arm64
             runs-on: macos-latest
-          - os: windows
-            arch: amd64
-            runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
