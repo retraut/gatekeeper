@@ -55,6 +55,7 @@ jobs:
         run: |
           mkdir -p dist
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }} .
+        shell: bash
         env:
           CGO_ENABLED: 0
 
