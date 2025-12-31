@@ -36,9 +36,6 @@ jobs:
             arch: arm64
             runs-on: ubuntu-latest
           - os: darwin
-            arch: amd64
-            runs-on: macos-13
-          - os: darwin
             arch: arm64
             runs-on: macos-latest
           - os: windows
@@ -69,7 +66,7 @@ jobs:
 
       - name: Upload artifacts to release
         run: |
-          gh release upload ${{ needs.release-please.outputs.tag_name }} \
+          gh release upload ${{ github.event.release.tag_name }} \
             dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }} \
             dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }}.sha256 \
             --clobber
