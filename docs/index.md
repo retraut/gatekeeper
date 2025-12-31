@@ -52,7 +52,6 @@ gatekeeper status --compact
 - Concurrent execution
 - Timeouts & retries
 - JSON state file
-- HTTP endpoints
 - Structured logging
 
 ### MenuBar App (SwiftUI)
@@ -108,12 +107,9 @@ gatekeeper status --compact
 main.go              - Entry point, CLI commands
 config.go            - Config parsing
 daemon.go            - Main loop
-checker.go           - Basic checks (legacy)
 checker_enhanced.go  - Advanced checks
 logger.go            - Logging
 state.go             - Persistence
-health.go            - HTTP endpoints
-webhooks.go          - Notifications
 helpers.go           - Utilities
 go.mod               - Dependencies
 ```
@@ -158,7 +154,6 @@ launch-agent.plist   - Auto-start config
 2. Understand data flow
 3. Build Swift app
 4. Customize widgets
-5. Add webhooks
 
 ## 🔍 Finding Things
 
@@ -221,21 +216,17 @@ launch-agent.plist   - Auto-start config
 - Human readable
 - Compact (for tmux)
 - JSON (for apps/monitoring)
-- HTTP endpoints
 
 **Rich Integrations**
 - tmux status bar
 - macOS menu bar
 - Desktop widgets
 - Lock screen widgets
-- HTTP API
 
 **Advanced Configuration**
 - Per-service timeouts
 - Per-service retries
-- Failure actions
 - Environment variables
-- Webhook support
 
 ## 🐛 Troubleshooting
 

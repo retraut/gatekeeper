@@ -4,27 +4,24 @@ Service authentication status monitor with daemon, CLI, tmux integration, and ma
 
 Check if your AWS, GitHub, Docker, and other CLI tools are properly authenticated—all from one place.
 
-**GitHub:** https://github.com/retraut/gatekeeper  
+**GitHub:** https://github.com/retraut/gatekeeper
 **Releases:** https://github.com/retraut/gatekeeper/releases
 
-## Contents
+## Quick Start
 
-- [Features](#features)
-- [Installation](#installation)
-  - [Homebrew](#homebrew-macos)
-  - [GitHub Releases](#from-github-releases)
-  - [From Source](#from-source)
-- [Quick Start](#quick-start)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Integration](#integration)
-  - [tmux](#tmux)
-  - [macOS Startup](#launch-on-macos-startup)
-  - [macOS Menu Bar App](#macos-menu-bar-app)
-- [File Locations](#file-locations)
-- [Documentation](#documentation)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+```bash
+# 1. Install
+./build.sh --cli --install
+
+# 2. Configure
+nano ~/.config/gatekeeper/config.yaml
+
+# 3. Run
+gatekeeper daemon
+
+# 4. Check status
+gatekeeper status --compact
+```
 
 ## Features
 
@@ -33,6 +30,7 @@ Check if your AWS, GitHub, Docker, and other CLI tools are properly authenticate
 - **Concurrent checks** - All services checked in parallel
 - **Configurable timeouts** - Per-service timeout handling
 - **Automatic retries** - Smart retry logic with exponential backoff
+- **Smart notifications** - macOS notifications when auth fails (no spam, one per service)
 - **tmux integration** - Status in your tmux status bar
 - **macOS Menu Bar** - Native SwiftUI app showing status at a glance
 - **WidgetKit** - Desktop and Lock Screen widgets
@@ -43,24 +41,21 @@ Check if your AWS, GitHub, Docker, and other CLI tools are properly authenticate
 
 ### Homebrew (macOS)
 
-Coming soon! For now, use one of the other installation methods below.
-
 ```bash
-# Once tap is available:
-# brew tap retraut/gatekeeper
-# brew install gatekeeper
+brew tap retraut/gatekeeper
+brew install gatekeeper
 ```
 
 ### From GitHub Releases
 
-Download pre-built binaries for your platform:
+Download pre-built binaries:
 
 ```bash
-# macOS (Intel)
-wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-amd64
-
 # macOS (Apple Silicon)
 wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-arm64
+
+# macOS (Intel)
+wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-amd64
 
 # Linux (x86_64)
 wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-linux-amd64
@@ -72,20 +67,10 @@ wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-l
 wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-windows-amd64.exe
 ```
 
-Then move to your PATH:
+Make executable and move to PATH:
 ```bash
 chmod +x gatekeeper-darwin-arm64
 mv gatekeeper-darwin-arm64 /usr/local/bin/gatekeeper
-```
-
-**Verify integrity:** Each binary has an associated `.sha256` file for verification:
-```bash
-# Download both files
-wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-arm64
-wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-arm64.sha256
-
-# Verify
-sha256sum -c gatekeeper-darwin-arm64.sha256
 ```
 
 ### From Source
@@ -93,53 +78,24 @@ sha256sum -c gatekeeper-darwin-arm64.sha256
 ```bash
 git clone https://github.com/retraut/gatekeeper
 cd gatekeeper
-go build -o gatekeeper
-mv gatekeeper /usr/local/bin/
-```
-
-## Quick Start
-
-### 1. Create Config
-
-```bash
-mkdir -p ~/.config/gatekeeper
-cat > ~/.config/gatekeeper/config.yaml << 'EOF'
-services:
-  - name: AWS
-    check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
-  - name: GitHub
-    check_cmd: "gh auth status > /dev/null 2>&1"
-
-interval: 30
-EOF
-```
-
-### 2. Start Daemon
-
-```bash
-gatekeeper start
-```
-
-### 3. Check Status
-
-In another terminal:
-```bash
-gatekeeper status
-gatekeeper status --compact
-gatekeeper status --json
+./build.sh --cli --install
 ```
 
 ## Configuration
 
-Config file location: `~/.config/gatekeeper/config.yaml`
+Create config at `~/.config/gatekeeper/config.yaml`:
 
-**Basic example:**
 ```yaml
 services:
   - name: AWS
     check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
     timeout: 10
     retries: 2
+
+  - name: GitHub
+    check_cmd: "gh auth status > /dev/null 2>&1"
+    timeout: 10
+    retries: 1
 
 interval: 30
 ```
@@ -151,20 +107,233 @@ interval: 30
 - `timeout` - Timeout per service in seconds (default: 5)
 - `retries` - Number of retries (default: 1)
 
+### Advanced Examples
+
+**AWS with multiple profiles:**
+```yaml
+services:
+  - name: AWS (production)
+    check_cmd: "AWS_PROFILE=production aws sts get-caller-identity > /dev/null 2>&1"
+    timeout: 10
+    retries: 2
+
+  - name: AWS (development)
+    check_cmd: "AWS_PROFILE=development aws sts get-caller-identity > /dev/null 2>&1"
+    timeout: 10
+    retries: 2
+
+  - name: AWS (staging)
+    check_cmd: "AWS_PROFILE=staging aws sts get-caller-identity > /dev/null 2>&1"
+    timeout: 10
+    retries: 1
+```
+
+**Okta authentication:**
+```yaml
+services:
+  - name: Okta
+    check_cmd: "okta-aws-cli list-profiles > /dev/null 2>&1"
+    timeout: 15
+    retries: 1
+```
+
+**ArgoCD:**
+```yaml
+services:
+  - name: ArgoCD
+    check_cmd: "argocd account get-user-info > /dev/null 2>&1"
+    timeout: 10
+    retries: 2
+```
+
+**Docker:**
+```yaml
+services:
+  - name: Docker
+    check_cmd: "docker info > /dev/null 2>&1"
+    timeout: 5
+    retries: 1
+```
+
+**Kubernetes:**
+```yaml
+services:
+  - name: Kubernetes (prod)
+    check_cmd: "kubectl --context=prod-cluster cluster-info > /dev/null 2>&1"
+    timeout: 10
+    retries: 1
+
+  - name: Kubernetes (dev)
+    check_cmd: "kubectl --context=dev-cluster cluster-info > /dev/null 2>&1"
+    timeout: 10
+    retries: 1
+```
+
+**Google Cloud:**
+```yaml
+services:
+  - name: GCP
+    check_cmd: "gcloud auth list --filter=status:ACTIVE --format='value(account)' > /dev/null 2>&1"
+    timeout: 10
+    retries: 1
+```
+
+**Azure:**
+```yaml
+services:
+  - name: Azure
+    check_cmd: "az account show > /dev/null 2>&1"
+    timeout: 10
+    retries: 1
+```
+
+## Quick Re-authentication
+
+When a service fails authentication, quickly re-authenticate with:
+
+```bash
+gatekeeper auth <service-name>
+```
+
+**Example:**
+```yaml
+# config.yaml
+services:
+  - name: GitHub
+    check_cmd: "gh auth status > /dev/null 2>&1"
+    auth_cmd: "gh auth login"
+
+  - name: AWS
+    check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
+    auth_cmd: "aws sso login"
+
+  - name: Docker
+    check_cmd: "docker info > /dev/null 2>&1"
+    auth_cmd: "docker login"
+```
+
+**Usage:**
+```bash
+# Check what's dead
+$ gatekeeper status
+AWS Production: ❌ dead
+AWS Development: ❌ dead
+GitHub: ✅ alive
+
+# Re-auth single service (case-insensitive)
+$ gatekeeper auth github
+Running auth for 'GitHub'...
+Logging into GitHub...
+Auth completed for 'GitHub'
+
+# Re-auth ALL AWS services at once (partial match)
+$ gatekeeper auth aws
+Found 2 services matching 'aws':
+  - AWS Production
+  - AWS Development
+
+Running auth for all...
+
+[1/2] Authenticating 'AWS Production'...
+✓ Auth completed for 'AWS Production'
+
+[2/2] Authenticating 'AWS Development'...
+✓ Auth completed for 'AWS Development'
+
+✓ All auth commands completed
+
+# Re-auth EVERYTHING at once
+$ gatekeeper auth all
+Found 3 services matching 'all':
+  - AWS Production
+  - AWS Development
+  - GitHub
+
+Running auth for all...
+[Progress for each service...]
+✓ All auth commands completed
+```
+
+**Features:**
+- **Case-insensitive** - `github`, `GitHub`, `GITHUB` all work
+- **Partial matching** - `aws` matches all AWS services
+- **Batch auth** - `auth all` or `auth aws` for multiple services
+- **Interactive** - connects stdin/stdout for interactive auth flows
+- **Smart matching** - shows available services if not found
+
 ## Commands
 
 ```bash
-gatekeeper status                   # Show status
-gatekeeper status --compact         # Compact format
-gatekeeper status --json            # JSON format
-gatekeeper init                     # Create example config
-gatekeeper --help                   # Show help
+# Check status
+gatekeeper status              # Human readable
+gatekeeper status --compact    # For tmux
+gatekeeper status --json       # JSON format
+
+# Manage daemon
+gatekeeper start               # Start daemon
+gatekeeper stop                # Stop daemon
+
+# Quick re-authentication
+gatekeeper auth <service>      # Run auth command for service
+gatekeeper auth GitHub         # Example: re-auth GitHub
+gatekeeper auth AWS            # Example: re-auth AWS
+
+# Other
+gatekeeper init                # Create example config
+gatekeeper --help              # Show help
 ```
 
-**Manual daemon control** (if not using LaunchAgent):
+## Shell Completions
+
+Gatekeeper supports zsh completions with auto-complete for service names.
+
+**Install:**
 ```bash
-gatekeeper start [--config path]    # Start daemon manually
-gatekeeper stop                     # Stop daemon gracefully
+gatekeeper completion install
+```
+
+This will:
+- Create `~/.zsh/completions/_gatekeeper`
+- Auto-complete service names from your config
+- Provide helpful descriptions for all commands
+
+**What you get:**
+```bash
+gatekeeper <TAB>
+# Shows: start, stop, status, auth, init, completion
+
+gatekeeper auth <TAB>
+# Shows: all, AWS Production, AWS Development, GitHub, etc.
+
+gatekeeper status --<TAB>
+# Shows: --json, --compact
+```
+
+**Uninstall:**
+```bash
+gatekeeper completion uninstall
+```
+
+**Setup (if not auto-detected):**
+
+Add to `~/.zshrc`:
+```bash
+fpath=(~/.zsh/completions $fpath)
+autoload -Uz compinit && compinit
+```
+
+Then: `source ~/.zshrc`
+
+## Build Options
+
+```bash
+./build.sh                    # Build everything
+./build.sh --cli              # CLI only
+./build.sh --cli --install    # CLI + install
+./build.sh --app              # macOS app (needs Xcode)
+./build.sh --test             # Verify installation
+./build.sh --clean            # Remove artifacts
+./build.sh --help             # Show all options
 ```
 
 ## Integration
@@ -177,59 +346,48 @@ set -g status-right "#(gatekeeper status --compact)"
 set -g status-interval 30
 ```
 
-Then reload:
+Reload:
 ```bash
 tmux source-file ~/.tmux.conf
 ```
 
-### Launch on macOS Startup
+### macOS Auto-start
 
-Install the LaunchAgent to run daemon automatically on login:
+Install LaunchAgent:
 
 ```bash
-# Copy LaunchAgent plist
 cp launch-agent.plist ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
-
-# Load it
 launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
 ```
 
-Now daemon starts automatically on login and restarts if it crashes.
-
-**Manage the daemon:**
+Manage daemon:
 ```bash
-# Check if running
+# Check status
 launchctl list | grep gatekeeper
 
 # View logs
 tail -f /var/log/gatekeeper.log
-tail -f /var/log/gatekeeper.err
 
-# Stop daemon
-launchctl unload ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
-
-# Start daemon again
-launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
-
-# Reload after config changes
+# Stop/start
 launchctl unload ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
 launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
-
-# Remove completely
-rm ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
-launchctl remove com.gatekeeper.daemon
 ```
 
 ### macOS Menu Bar App
 
-For full macOS GUI (MenuBar app + Widgets):
+Build app with Xcode:
 
 ```bash
 cd GatekeeperApp
 xcodebuild -scheme Gatekeeper -configuration Release build
 ```
 
-Then drag the built app to Applications.
+Then drag to Applications.
+
+For widgets:
+1. Build app first
+2. Right-click desktop → Edit Widgets
+3. Add Gatekeeper widget
 
 ## File Locations
 
@@ -240,43 +398,83 @@ Then drag the built app to Applications.
 | State | `~/.cache/gatekeeper/state.json` | Current status |
 | Logs | `~/.cache/gatekeeper/gatekeeper.log` | Debug logs |
 
-## Documentation
+## Examples
 
-- **Getting Started** - [docs/01-getting-started.md](docs/01-getting-started.md)
-- **Build Guide** - [docs/build.md](docs/build.md)
-- **Architecture** - [docs/architecture.md](docs/architecture.md)
-- **Setup & Config** - [docs/setup.md](docs/setup.md)
-- **All Docs** - [docs/](docs/)
+**Check status:**
+```bash
+$ gatekeeper status
+AWS: ✓ alive
+GitHub: ✓ alive
+```
+
+**Compact format (for tmux):**
+```bash
+$ gatekeeper status --compact
+AWS:✓ GitHub:✓
+```
+
+**JSON format (for apps/monitoring):**
+```bash
+$ gatekeeper status --json
+{
+  "services": [
+    {"name": "AWS", "is_alive": true},
+    {"name": "GitHub", "is_alive": true}
+  ]
+}
+```
 
 ## Troubleshooting
 
-**"Command not found: gatekeeper"**
+**Command not found:**
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-**"Build failed"**
+**Daemon not updating state:**
 ```bash
-go mod download
-go build -o gatekeeper
-```
-
-**"Daemon not updating state"**
-```bash
+# Check if running
 ps aux | grep gatekeeper
+
+# Check logs
 tail -f ~/.cache/gatekeeper/gatekeeper.log
 ```
 
+**tmux not showing status:**
+```bash
+# Test command
+gatekeeper status --compact
+
+# Check path
+which gatekeeper
+
+# Reload tmux config
+tmux source-file ~/.tmux.conf
+```
+
+**Build failed:**
+```bash
+go version  # Check Go is installed
+go mod download
+./build.sh --clean --cli
+```
+
+## Documentation
+
+- **Build Guide** - [docs/build.md](docs/build.md)
+- **Setup & Config** - [docs/setup.md](docs/setup.md)
+- **Architecture** - [docs/architecture.md](docs/architecture.md)
+- **All Docs** - [docs/](docs/)
+
 ## Contributing
 
-This project uses **Conventional Commits** for automated versioning.
+This project uses **Conventional Commits** for automated versioning:
 
-When committing, use the format:
-- `feat: Add new feature` → triggers minor version bump
-- `fix: Fix a bug` → triggers patch version bump
-- `feat!: Breaking change` → triggers major version bump
+- `feat: Add new feature` → minor version bump
+- `fix: Fix a bug` → patch version bump
+- `feat!: Breaking change` → major version bump
 
-See [docs/contributing.md](docs/contributing.md) for more details.
+See [docs/contributing.md](docs/contributing.md) for details.
 
 ## License
 

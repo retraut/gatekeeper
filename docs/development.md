@@ -104,9 +104,7 @@ go mod tidy
 ├── daemon.go            # Daemon loop
 ├── config.go            # Config parsing
 ├── state.go             # State management
-├── checker.go           # Service health checks
-├── webhooks.go          # Webhook integrations
-├── health.go            # HTTP health endpoint
+├── checker_enhanced.go  # Service health checks
 ├── logger.go            # Structured logging
 ├── helpers.go           # Utility functions
 ├── GatekeeperApp/       # SwiftUI macOS app

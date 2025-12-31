@@ -8,15 +8,12 @@
 | `main.go` | 105 | CLI entry point, subcommands (status, daemon, init) |
 | `config.go` | 35 | YAML config parsing, validation |
 | `daemon.go` | 58 | Main daemon loop, service check orchestration |
-| `checker.go` | 40 | Basic command execution (deprecated, use checker_enhanced) |
 | `checker_enhanced.go` | 105 | Advanced checker: timeouts, retries, concurrency |
 | `logger.go` | 85 | Structured logging with levels |
 | `state.go` | 46 | JSON state persistence |
-| `health.go` | 85 | HTTP health check endpoints |
-| `webhooks.go` | 65 | Webhook notification support |
 | `helpers.go` | 30 | Output formatting functions |
 
-**Total Go Code: ~594 lines**
+**Total Go Code: ~464 lines**
 
 ### Build & Installation
 | File | Purpose |
@@ -73,16 +70,13 @@
 
 ```
 gatekeeper/
-├── Go CLI Source (11 files)
+├── Go CLI Source (8 files)
 │   ├── main.go
 │   ├── config.go
 │   ├── daemon.go
-│   ├── checker.go
 │   ├── checker_enhanced.go
 │   ├── logger.go
 │   ├── state.go
-│   ├── health.go
-│   ├── webhooks.go
 │   ├── helpers.go
 │   └── go.mod
 │
@@ -119,13 +113,13 @@ gatekeeper/
 
 | Category | Count | Lines |
 |----------|-------|-------|
-| Go source files | 11 | ~594 |
+| Go source files | 8 | ~464 |
 | Swift source files | 2 | ~460 |
 | Shell scripts | 1 | ~30 |
 | Config/Template files | 3 | ~100 |
 | Build files | 4 | ~200 |
 | Documentation files | 6 | ~2000 |
-| **TOTAL** | **27** | **~3384** |
+| **TOTAL** | **24** | **~3254** |
 
 ## Key File Relationships
 
@@ -136,7 +130,6 @@ main.go
   ├─ calls → checker_enhanced.go (check services)
   ├─ calls → state.go (save state)
   ├─ calls → logger.go (log results)
-  ├─ calls → health.go (start HTTP server)
   └─ calls → helpers.go (format output)
 
 install.sh

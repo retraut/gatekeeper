@@ -12,7 +12,7 @@
 │  • Runs check commands concurrently         │
 │  • Handles retries, timeouts, logs          │
 │  • Writes to ~/.cache/gatekeeper/state.json│
-│  • Exposes HTTP health endpoints (optional) │
+│                                             │
 │                                             │
 │  Runs every N seconds (configurable)        │
 └──────────────┬──────────────────────────────┘
@@ -33,21 +33,21 @@
       │ }                  │
       └────────┬───────────┘
                │
-    ┌──────────┼──────────┬────────────┐
-    │          │          │            │
-    │ reads    │ reads    │ reads      │ reads
-    │ every    │ every    │ every      │ (on demand)
-    │ 10s      │ 30s      │ 30s        │
-    ↓          ↓          ↓            ↓
- ┌──────┐  ┌──────────┐  ┌────────┐  ┌──────┐
- │MenuBar│  │WidgetKit │  │ tmux   │  │ HTTP │
- │  App  │  │ Widgets  │  │ Status │  │ Ping │
- │(Swift)│  │ (Swift)  │  │(Bash)  │  │      │
- └──────┘  └──────────┘  └────────┘  └──────┘
+    ┌──────────┼──────────┐
+    │          │          │
+    │ reads    │ reads    │ reads
+    │ every    │ every    │ every
+    │ 10s      │ 30s      │ 30s
+    ↓          ↓          ↓
+ ┌──────┐  ┌──────────┐  ┌────────┐
+ │MenuBar│  │WidgetKit │  │ tmux   │
+ │  App  │  │ Widgets  │  │ Status │
+ │(Swift)│  │ (Swift)  │  │(Bash)  │
+ └──────┘  └──────────┘  └────────┘
      │         │            │
-   Shows     Shows        Shows       Returns
-   status    widgets      in tmux    JSON data
-   in menu   on desktop   status     for monitoring
+   Shows     Shows        Shows
+   status    widgets      in tmux
+   in menu   on desktop   status
    bar       /lock screen bar
 ```
 
@@ -58,23 +58,19 @@
 **Files:**
 - `main.go` - CLI entry point
 - `config.go` - YAML parsing
-- `checker.go` - Basic check execution
 - `checker_enhanced.go` - Timeouts, retries, concurrency
 - `daemon.go` - Main loop
 - `logger.go` - Structured logging
 - `state.go` - State persistence
-- `health.go` - HTTP endpoints
-- `webhooks.go` - Notifications
+- `helpers.go` - Formatting utilities
 
 **Flow:**
 ```
 1. Load config.yaml
-2. Start HTTP health server (if configured)
-3. For each interval:
+2. For each interval:
    a. Run all service checks concurrently
    b. Save to state.json
    c. Log results
-   d. Execute on_failure actions
 ```
 
 **State Machine:**
@@ -97,9 +93,6 @@
 ┌──────────────────┐
 │ Save state.json  │
 └────┬─────────────┘
-     │
-     ├→ Update HTTP server state
-     ├→ Run on_failure actions
      │
      ↓ repeat
 ```
@@ -198,21 +191,6 @@ Outputs: "AWS:❌ GitHub:✅"
 Displayed in tmux status bar
 ```
 
-### 5. HTTP Health Endpoint (Optional)
-
-**Endpoints:**
-```
-GET /health
-    └─ Returns overall health + uptime
-       Content: status, services[], uptime
-       Codes: 200 (all ok), 206 (partial)
-
-GET /status
-    └─ Returns full state JSON
-       Content: services array
-       Code: 200 or 503
-```
-
 ## Data Models
 
 ### Service (Config)
@@ -222,8 +200,6 @@ check_cmd: string     # Primary check command
 auth_cmd: string      # Fallback if check_cmd fails
 timeout: int          # Seconds (default: 10)
 retries: int          # Attempts (default: 1)
-on_failure: string    # Command to run if fails
-webhook: string       # Webhook URL for notifications
 ```
 
 ### ServiceStatus (State)
@@ -239,7 +215,6 @@ webhook: string       # Webhook URL for notifications
 ```yaml
 services: []          # Array of Service
 interval: int         # Check interval in seconds
-health_port: string   # Optional HTTP port
 ```
 
 ## Concurrency Model
@@ -260,7 +235,6 @@ Save results atomically
 ### UI Refresh
 - **MenuBar**: Sequential timer (10s intervals)
 - **WidgetKit**: Timeline-based (30s intervals)
-- **HTTP**: On-demand (no timer, instant response)
 
 ## Failure Handling
 
@@ -326,7 +300,6 @@ GatekeeperApp.xcodeproj/        # Xcode project for macOS app
 | MenuBar | 10 seconds | <100ms | Minimal | ~20MB |
 | WidgetKit | 30 seconds | <100ms | Minimal | ~30MB |
 | tmux | On demand | <100ms | Minimal | <1MB |
-| HTTP | On demand | <10ms | Minimal | Included in daemon |
 
 ## Security Considerations
 
@@ -338,11 +311,7 @@ GatekeeperApp.xcodeproj/        # Xcode project for macOS app
    - No privilege escalation
    - No injection handling (user controls config)
 
-3. **HTTP Endpoint**: Listens on localhost only (127.0.0.1)
-   - No authentication required
-   - Only accessible from same machine
-
-4. **Logs**: Written to user home directory
+3. **Logs**: Written to user home directory
    - May contain command errors/stack traces
    - Rotate or archive periodically
 
@@ -352,14 +321,6 @@ GatekeeperApp.xcodeproj/        # Xcode project for macOS app
 1. Read `~/.cache/gatekeeper/state.json`
 2. Parse JSON to State struct
 3. Display/refresh as needed
-
-### Add Notifications
-1. Implement in `webhooks.go`
-2. Call from daemon on status change
-
-### Add HTTP Endpoints
-1. Add routes in `health.go`
-2. Use `lastState` from daemon
 
 ### Custom Checks
 1. Modify `checker_enhanced.go` command execution

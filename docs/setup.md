@@ -35,7 +35,6 @@ services:
     retries: 1
 
 interval: 30
-health_port: 8080  # Optional HTTP endpoint
 ```
 
 ### 3. Start Daemon
@@ -104,13 +103,6 @@ gatekeeper status --json       # JSON format
 gatekeeper status --compact    # tmux format
 ```
 
-### HTTP Health Endpoint
-```bash
-# If health_port configured
-curl http://localhost:8080/health    # Overall health
-curl http://localhost:8080/status    # Detailed status
-```
-
 ### Logs
 ```bash
 tail -f ~/.cache/gatekeeper/gatekeeper.log
@@ -125,22 +117,6 @@ services:
     check_cmd: "slow-command"
     timeout: 30        # 30 seconds (default 10)
     retries: 3         # Retry 3 times
-```
-
-### Failure Actions
-```yaml
-services:
-  - name: AWS
-    check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
-    on_failure: "notify-send 'AWS auth failed'"  # Run command on failure
-```
-
-### Webhooks (Slack)
-```yaml
-services:
-  - name: GitHub
-    check_cmd: "gh auth status > /dev/null 2>&1"
-    webhook: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
 ```
 
 ## Troubleshooting

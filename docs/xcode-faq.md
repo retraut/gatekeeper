@@ -27,7 +27,6 @@ gatekeeper status
 ✅ Go daemon              - фоновий процес перевірки
 ✅ CLI commands           - gatekeeper status, daemon, init
 ✅ tmux integration       - статус у меню бару
-✅ HTTP API               - localhost:8080/health
 ✅ Logging & monitoring   - вся телеметрія
 ✅ 5.9MB binary          - мало ресурсів
 ```

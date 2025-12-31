@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+const (
+	maxLogSize = 10 * 1024 * 1024 // 10MB
+)
+
 type LogLevel int
 
 const (
@@ -25,9 +29,10 @@ var logLevelName = map[LogLevel]string{
 }
 
 type Logger struct {
-	level  LogLevel
-	file   *os.File
-	logger *log.Logger
+	level   LogLevel
+	file    *os.File
+	logger  *log.Logger
+	logPath string
 }
 
 func NewLogger(level LogLevel) *Logger {
@@ -42,16 +47,43 @@ func NewLogger(level LogLevel) *Logger {
 	}
 
 	return &Logger{
-		level:  level,
-		file:   f,
-		logger: log.New(f, "", 0),
+		level:   level,
+		file:    f,
+		logger:  log.New(f, "", 0),
+		logPath: logPath,
 	}
+}
+
+func (l *Logger) rotate() {
+	info, err := l.file.Stat()
+	if err != nil {
+		return
+	}
+
+	if info.Size() < maxLogSize {
+		return
+	}
+
+	l.file.Close()
+
+	oldPath := l.logPath + ".old"
+	os.Remove(oldPath)
+	os.Rename(l.logPath, oldPath)
+
+	f, err := os.OpenFile(l.logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return
+	}
+
+	l.file = f
+	l.logger = log.New(f, "", 0)
 }
 
 func (l *Logger) log(level LogLevel, msg string) {
 	if level < l.level {
 		return
 	}
+	l.rotate()
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	l.logger.Printf("[%s] %s: %s", timestamp, logLevelName[level], msg)
 }

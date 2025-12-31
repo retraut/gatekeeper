@@ -29,6 +29,12 @@ func runDaemon(config *Config) {
 		daemonLogger.Warnf("Error saving PID file: %v", err)
 	}
 
+	// Ensure PID file is removed on exit
+	defer func() {
+		os.Remove(pidFile)
+		daemonLogger.Info("Daemon stopped, PID file removed")
+	}()
+
 	daemonLogger.Info("Gatekeeper daemon starting...")
 	daemonLogger.Infof("Checking interval: %d seconds", config.Interval)
 	daemonLogger.Infof("Found %d services to monitor", len(config.Services))
@@ -57,6 +63,7 @@ func runDaemon(config *Config) {
 
 func checkAndUpdateState(config *Config) {
 	ctx := context.Background()
+
 	state := &State{}
 
 	// Add daemon status
@@ -75,6 +82,7 @@ func checkAndUpdateState(config *Config) {
 
 	// Check all services concurrently
 	statuses := checker.CheckBatch(ctx, config.Services)
+
 	state.Services = statuses
 
 	if err := saveState(state); err != nil {

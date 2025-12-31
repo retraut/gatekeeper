@@ -9,6 +9,12 @@ import (
 
 const DefaultTimeout = 10 * time.Second
 
+type ServiceStatus struct {
+	Name    string `json:"name"`
+	IsAlive bool   `json:"is_alive"`
+	Error   string `json:"error,omitempty"`
+}
+
 type CheckerOptions struct {
 	Timeout time.Duration
 	Retries int
@@ -64,19 +70,12 @@ func (c *EnhancedChecker) CheckWithContext(ctx context.Context, service Service)
 }
 
 func (c *EnhancedChecker) executeCheck(ctx context.Context, service Service, status *ServiceStatus) bool {
-	// Try check_cmd first
+	// Run check_cmd
 	if service.CheckCmd != "" {
 		if c.runCommand(ctx, service.CheckCmd) {
 			return true
 		}
-	}
-
-	// Fallback to auth_cmd
-	if service.AuthCmd != "" {
-		if c.runCommand(ctx, service.AuthCmd) {
-			return true
-		}
-		status.Error = "auth check failed"
+		status.Error = "check failed"
 	}
 
 	return false

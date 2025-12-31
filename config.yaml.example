@@ -4,15 +4,13 @@ services:
     auth_cmd: "aws configure"
     timeout: 10
     retries: 2
-    # webhook: "https://hooks.slack.com/services/..."
-    # on_failure: "notify-aws-team"
-  
+
   - name: GitHub
     check_cmd: "gh auth status > /dev/null 2>&1"
     auth_cmd: "gh auth login"
     timeout: 10
     retries: 1
-  
+
   - name: Docker
     check_cmd: "docker ps > /dev/null 2>&1"
     auth_cmd: "docker login"
@@ -20,4 +18,3 @@ services:
     retries: 1
 
 interval: 30
-# health_port: 8080  # Optional HTTP health check endpoint

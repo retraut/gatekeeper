@@ -6,7 +6,6 @@ Gatekeeper monitors if your CLI tools (AWS, GitHub, Docker, etc.) are properly a
 - **Menu bar** 🍎 (macOS app)
 - **Desktop widgets** 🎨 (WidgetKit)
 - **tmux status bar** 📡
-- **HTTP endpoints** 🌐
 
 All powered by a single daemon running in the background.
 
@@ -64,7 +63,6 @@ Pick a starting point based on what you need:
 - Concurrent service checks
 - Per-service timeouts & retries
 - Structured logging
-- HTTP health endpoints
 
 ### Phase 3: tmux Integration ✅
 - Helper script for tmux status bar
@@ -191,8 +189,7 @@ After building, you'll have:
 **Advanced:** Extend
 1. Read [ARCHITECTURE.md](ARCHITECTURE.md)
 2. Build macOS app
-3. Add webhooks
-4. Customize widgets
+3. Customize widgets
 
 ## ✨ Key Features
 
@@ -201,7 +198,6 @@ After building, you'll have:
 - **Automatic retries** - Smart retry logic
 - **Multiple UIs** - CLI, MenuBar, Widgets, tmux
 - **JSON state** - Single source of truth
-- **HTTP API** - For monitoring systems
 - **Zero dependencies** - Only YAML parsing library
 
 ## 📞 Support Resources

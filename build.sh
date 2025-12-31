@@ -61,19 +61,19 @@ check_requirements() {
 # Build CLI
 build_cli() {
     print_header "Building CLI Binary"
-    
+
     if [ ! -f "go.mod" ]; then
         print_error "go.mod not found. Run 'go mod init gatekeeper' first"
         exit 1
     fi
-    
+
     print_info "Installing dependencies..."
     go mod download
     go mod tidy
-    
+
     print_info "Building binary..."
     go build -o gatekeeper -ldflags="-s -w"
-    
+
     if [ -f "gatekeeper" ]; then
         SIZE=$(ls -lh gatekeeper | awk '{print $5}')
         print_success "Built gatekeeper ($SIZE)"
@@ -233,13 +233,13 @@ EOF
 # Clean build artifacts
 clean_build() {
     print_header "Cleaning Build Artifacts"
-    
+
     print_info "Removing binary..."
     rm -f gatekeeper
-    
+
     print_info "Removing macOS app build..."
     rm -rf GatekeeperApp/build
-    
+
     print_success "Cleaned"
 }
 

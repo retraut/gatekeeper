@@ -6,7 +6,6 @@ Gatekeeper is a service authentication status monitor that checks if your CLI to
 - **Menu bar** (always visible)
 - **Desktop/Lock screen widgets** (WidgetKit)
 - **tmux status bar** (for terminal users)
-- **HTTP endpoints** (for monitoring systems)
 
 All with a single daemon running in the background.
 
@@ -24,9 +23,6 @@ All with a single daemon running in the background.
 - Structured logging (DEBUG/INFO/WARN/ERROR)
 - Per-service timeouts & retries
 - Concurrent service checks
-- HTTP health endpoints (/health, /status)
-- on_failure actions
-- Webhook support
 
 **Phase 3: tmux Integration**
 - Bash helper script
@@ -75,13 +71,9 @@ gatekeeper status              # For humans
 - **tmux**: Status in menu bar
 - **MenuBar**: Always-visible app icon
 - **Widgets**: Desktop/Lock screen display
-- **HTTP**: RESTful health check endpoints
-- **Webhooks**: Slack notifications
-- **Commands**: Run scripts on failure
 
 ### Monitoring
 - **Structured logs** - Timestamped, searchable
-- **Health endpoints** - `/health` and `/status`
 - **CLI interface** - Multiple output formats
 
 ## File Structure
@@ -92,21 +84,15 @@ gatekeeper/
 │   ├── main.go                  # Entry point
 │   ├── config.go                # YAML config
 │   ├── daemon.go                # Main loop
-│   ├── checker.go               # Basic checks
 │   ├── checker_enhanced.go      # Advanced checks
 │   ├── logger.go                # Logging
 │   ├── state.go                 # Persistence
-│   ├── health.go                # HTTP endpoints
-│   ├── webhooks.go              # Notifications
 │   ├── helpers.go               # Formatting
 │   ├── gatekeeper               # Compiled binary
 │   ├── config.yaml.example      # Example config
 │   ├── install.sh               # Install script
 │   ├── gatekeeper-tmux.sh       # tmux helper
 │   ├── launch-agent.plist       # macOS auto-start
-│   ├── README.md                # Quick start
-│   ├── SETUP.md                 # Full setup guide
-│   ├── ARCHITECTURE.md          # System design
 │   └── go.mod
 │
 └── GatekeeperApp/               # macOS SwiftUI app
@@ -125,16 +111,13 @@ services:
     check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
     timeout: 10
     retries: 2
-    on_failure: "notify-aws-team"
-  
+
   - name: GitHub
     check_cmd: "gh auth status > /dev/null 2>&1"
     timeout: 10
     retries: 1
-    webhook: "https://hooks.slack.com/..."
 
 interval: 30
-health_port: 8080
 ```
 
 ## Common Commands
@@ -150,10 +133,6 @@ gatekeeper status --compact    # For tmux
 
 # Initialize config
 gatekeeper init
-
-# Check health (if health_port configured)
-curl http://localhost:8080/health
-curl http://localhost:8080/status
 
 # View logs
 tail -f ~/.cache/gatekeeper/gatekeeper.log
@@ -226,11 +205,6 @@ tail -f ~/.cache/gatekeeper/gatekeeper.log
 cat ~/.cache/gatekeeper/state.json | jq .
 ```
 
-**Test health endpoint:**
-```bash
-curl -s http://localhost:8080/health | jq .
-```
-
 ## Performance
 
 - **Daemon memory**: ~5-10MB
@@ -268,9 +242,8 @@ curl -s http://localhost:8080/health | jq .
 ## What's Not Included
 
 - macOS system tray notifications (can be added)
-- Slack bot integration (webhook support exists, needs handler)
 - Database storage (JSON file is simpler)
-- Web dashboard (HTTP endpoints exist, could build frontend)
+- Web dashboard
 - iOS app (macOS WidgetKit focused)
 
 ## Future Extensions

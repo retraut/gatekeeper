@@ -12,7 +12,6 @@
 
 **Files Created:**
 - config.go
-- checker.go
 - state.go
 - daemon.go
 - main.go
@@ -28,22 +27,16 @@
 - [x] Per-service timeout configuration
 - [x] Per-service retry configuration
 - [x] Environment variable expansion
-- [x] on_failure action execution
-- [x] HTTP health endpoints (/health, /status)
-- [x] Webhook support structure
-- [x] State update for HTTP server
 - [x] Structured logging with timestamps
 
 **Files Created:**
 - logger.go
 - checker_enhanced.go
-- health.go
-- webhooks.go
 - helpers.go
 
 **Files Modified:**
-- config.go (added timeout, retries, on_failure, webhook, health_port)
-- daemon.go (integrated logger, enhanced checker, health server)
+- config.go (added timeout, retries)
+- daemon.go (integrated logger, enhanced checker)
 - main.go (updated status output)
 
 ## ✅ Phase 3: tmux Integration
@@ -155,14 +148,10 @@
 - [x] MenuBar app with popover
 - [x] WidgetKit for desktop/lock screen
 - [x] tmux status bar integration
-- [x] HTTP endpoints for monitoring
 
 ### Integrations
 - [x] LaunchAgent auto-start
 - [x] Shell command execution
-- [x] on_failure actions
-- [x] Webhook notifications (structure)
-- [x] HTTP health check endpoints
 
 ### Operations
 - [x] Structured logging
@@ -194,12 +183,9 @@ gatekeeper daemon
 main.go              # Entry point, commands
 config.go            # YAML parsing
 daemon.go            # Main loop
-checker.go           # Basic execution
 checker_enhanced.go  # Timeouts, retries, concurrency
 logger.go            # Structured logging
 state.go             # JSON persistence
-health.go            # HTTP endpoints
-webhooks.go          # Notifications
 helpers.go           # Formatting utilities
 ```
 
@@ -234,11 +220,9 @@ CHECKLIST.md        # This file
 - [ ] Linux systemd integration
 - [ ] Windows service integration
 - [ ] Web dashboard frontend
-- [ ] Slack bot command support
 - [ ] Status history & graphs
 - [ ] Email/SMS alerting
 - [ ] Service dependency mapping
-- [ ] Custom webhook payload formats
 - [ ] Metrics export (Prometheus)
 - [ ] iOS companion app
 
