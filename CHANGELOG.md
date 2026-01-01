@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.1](https://github.com/retraut/gatekeeper/compare/v0.7.0...v0.7.1) (2026-01-01)
+
+
+### Bug Fixes
+
+* add version display to --help output ([a80053f](https://github.com/retraut/gatekeeper/commit/a80053f5458aa06948a7a60f0e34dabf37838dbe))
+* use HOMEBREW_TAP_TOKEN for pushing to tap repository ([6c84387](https://github.com/retraut/gatekeeper/commit/6c8438729419d4b2c162ba89fc5a80bd83375883))
+
 ## [0.7.0](https://github.com/retraut/gatekeeper/compare/v0.6.1...v0.7.0) (2026-01-01)
 
 
