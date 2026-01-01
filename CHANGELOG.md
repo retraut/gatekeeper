@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/retraut/gatekeeper/compare/v0.6.1...v0.7.0) (2026-01-01)
+
+
+### Features
+
+* remove macOS app, improve error handling, add validation ([49b5ce5](https://github.com/retraut/gatekeeper/commit/49b5ce5eb11233ec539d046330130d3b1b0ff731))
+
 ## [0.6.1](https://github.com/retraut/gatekeeper/compare/v0.6.0...v0.6.1) (2026-01-01)
 
 
