@@ -4,28 +4,29 @@ on:
   push:
     branches:
       - main
-  release:
-    types: [published]
 
 jobs:
   release-please:
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
-      issues: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           release-type: go
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  publish-release:
+  build:
+    needs: release-please
+    if: needs.release-please.outputs.release_created
     runs-on: ${{ matrix.runs-on }}
-    if: github.event_name == 'release'
     strategy:
       matrix:
         include:
@@ -40,8 +41,6 @@ jobs:
             runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.release.tag_name }}
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -52,7 +51,6 @@ jobs:
         run: |
           mkdir -p dist
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }} .
-        shell: bash
         env:
           CGO_ENABLED: 0
 
@@ -60,14 +58,126 @@ jobs:
         run: |
           cd dist
           sha256sum gatekeeper-${{ matrix.os }}-${{ matrix.arch }} > gatekeeper-${{ matrix.os }}-${{ matrix.arch }}.sha256
-        shell: bash
 
       - name: Upload artifacts to release
         run: |
-          gh release upload ${{ github.event.release.tag_name }} \
+          gh release upload ${{ needs.release-please.outputs.tag_name }} \
             dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }} \
             dist/gatekeeper-${{ matrix.os }}-${{ matrix.arch }}.sha256 \
             --clobber
-        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-brew-formula:
+    needs: [release-please, build]
+    if: needs.release-please.outputs.release_created
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wait for all builds to complete
+        run: sleep 10
+
+      - name: Download checksums
+        run: |
+          mkdir -p /tmp/checksums
+          gh release download ${{ needs.release-please.outputs.tag_name }} -p "*.sha256" -D /tmp/checksums
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract SHA256 values
+        id: checksums
+        run: |
+          cd /tmp/checksums
+          echo "DARWIN_ARM64=$(cat gatekeeper-darwin-arm64.sha256 | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "LINUX_ARM64=$(cat gatekeeper-linux-arm64.sha256 | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "LINUX_AMD64=$(cat gatekeeper-linux-amd64.sha256 | awk '{print $1}')" >> $GITHUB_OUTPUT
+
+      - name: Clone tap repository
+        run: |
+          gh repo clone retraut/homebrew-gatekeeper /tmp/tap
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+      - name: Update formula
+        run: |
+          python3 << 'EOF_PYTHON'
+          import os
+
+          version = os.environ.get('VERSION')
+          darwin_arm64 = os.environ.get('DARWIN_ARM64')
+          linux_arm64 = os.environ.get('LINUX_ARM64')
+          linux_amd64 = os.environ.get('LINUX_AMD64')
+
+          formula = f"""class Gatekeeper < Formula
+            desc "Service authentication status monitor with daemon, CLI, and tmux integration"
+            homepage "https://github.com/retraut/gatekeeper"
+            license "MIT"
+            version "{version}"
+
+            on_macos do
+              on_arm do
+                url "https://github.com/retraut/gatekeeper/releases/download/{version}/gatekeeper-darwin-arm64"
+                sha256 "{darwin_arm64}"
+              end
+            end
+
+            on_linux do
+              on_arm do
+                url "https://github.com/retraut/gatekeeper/releases/download/{version}/gatekeeper-linux-arm64"
+                sha256 "{linux_arm64}"
+              end
+              on_intel do
+                url "https://github.com/retraut/gatekeeper/releases/download/{version}/gatekeeper-linux-amd64"
+                sha256 "{linux_amd64}"
+              end
+            end
+
+            def install
+              arch = if Hardware::CPU.arm?
+                       "arm64"
+                     else
+                       "amd64"
+                     end
+
+              os_name = if OS.mac?
+                          "darwin"
+                        elsif OS.linux?
+                          "linux"
+                        else
+                          "unknown"
+                        end
+
+              binary_name = "gatekeeper-#{{os_name}}-#{{arch}}"
+              bin.install binary_name => "gatekeeper"
+            end
+
+            test do
+              system "#{{{bin}}}/gatekeeper", "--help"
+            end
+          end
+          """
+
+          with open('/tmp/tap/Formula/gatekeeper.rb', 'w') as f:
+              f.write(formula)
+          EOF_PYTHON
+        env:
+          VERSION: ${{ needs.release-please.outputs.tag_name }}
+          DARWIN_ARM64: ${{ steps.checksums.outputs.DARWIN_ARM64 }}
+          LINUX_ARM64: ${{ steps.checksums.outputs.LINUX_ARM64 }}
+          LINUX_AMD64: ${{ steps.checksums.outputs.LINUX_AMD64 }}
+
+      - name: Commit and push to tap
+        run: |
+          cd /tmp/tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/gatekeeper.rb
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update formula to ${{ needs.release-please.outputs.tag_name }}"
+            git push
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
