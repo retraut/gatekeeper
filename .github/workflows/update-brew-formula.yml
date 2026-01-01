@@ -51,23 +51,26 @@ jobs:
       - name: Extract SHAs and update formula
         run: |
           cd /tmp/checksums
-          
+
           # Extract SHA256 values from .sha256 files
           DARWIN_ARM64=$(cat gatekeeper-darwin-arm64.sha256 | awk '{print $1}')
-          DARWIN_AMD64=$(cat gatekeeper-darwin-amd64.sha256 | awk '{print $1}')
           LINUX_ARM64=$(cat gatekeeper-linux-arm64.sha256 | awk '{print $1}')
           LINUX_AMD64=$(cat gatekeeper-linux-amd64.sha256 | awk '{print $1}')
-          
+
           echo "DARWIN_ARM64=$DARWIN_ARM64" >> $GITHUB_ENV
-          echo "DARWIN_AMD64=$DARWIN_AMD64" >> $GITHUB_ENV
           echo "LINUX_ARM64=$LINUX_ARM64" >> $GITHUB_ENV
           echo "LINUX_AMD64=$LINUX_AMD64" >> $GITHUB_ENV
 
-      - name: Update formula file
+      - name: Clone tap repository
+        run: |
+          gh repo clone retraut/homebrew-gatekeeper /tmp/tap
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update formula file in tap
         env:
           VERSION: ${{ steps.release.outputs.tag_name }}
           DARWIN_ARM64: ${{ env.DARWIN_ARM64 }}
-          DARWIN_AMD64: ${{ env.DARWIN_AMD64 }}
           LINUX_ARM64: ${{ env.LINUX_ARM64 }}
           LINUX_AMD64: ${{ env.LINUX_AMD64 }}
         run: |
@@ -76,7 +79,6 @@ jobs:
 
           version = os.environ.get('VERSION')
           darwin_arm64 = os.environ.get('DARWIN_ARM64')
-          darwin_amd64 = os.environ.get('DARWIN_AMD64')
           linux_arm64 = os.environ.get('LINUX_ARM64')
           linux_amd64 = os.environ.get('LINUX_AMD64')
 
@@ -90,10 +92,6 @@ jobs:
               on_arm do
                 url "https://github.com/retraut/gatekeeper/releases/download/{version}/gatekeeper-darwin-arm64"
                 sha256 "{darwin_arm64}"
-              end
-              on_intel do
-                url "https://github.com/retraut/gatekeeper/releases/download/{version}/gatekeeper-darwin-amd64"
-                sha256 "{darwin_amd64}"
               end
             end
 
@@ -114,7 +112,7 @@ jobs:
                      else
                        "amd64"
                      end
-              
+
               os_name = if OS.mac?
                           "darwin"
                         elsif OS.linux?
@@ -122,7 +120,7 @@ jobs:
                         else
                           "unknown"
                         end
-              
+
               binary_name = "gatekeeper-#{{os_name}}-#{{arch}}"
               bin.install binary_name => "gatekeeper"
             end
@@ -133,29 +131,21 @@ jobs:
           end
           """
 
-          with open('Formula/gatekeeper.rb', 'w') as f:
+          with open('/tmp/tap/Formula/gatekeeper.rb', 'w') as f:
               f.write(formula)
           EOF_PYTHON
 
-      - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v5
-        with:
-          base: main
-          commit-message: "chore: update brew formula to ${{ steps.release.outputs.tag_name }}"
-          title: "chore: update brew formula to ${{ steps.release.outputs.tag_name }}"
-          body: "Automatically updated brew formula with new SHA256 checksums for ${{ steps.release.outputs.tag_name }}"
-          branch: update-brew-formula-${{ steps.release.outputs.tag_name }}
-          delete-branch: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Enable auto-merge for Pull Request
-        if: steps.cpr.outputs.pull-request-number
+      - name: Commit and push to tap repository
         run: |
-          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} \
-            --repo ${{ github.repository }} \
-            --auto \
-            --squash \
-            --delete-branch
+          cd /tmp/tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/gatekeeper.rb
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update formula to ${{ steps.release.outputs.tag_name }}"
+            git push
+          fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
