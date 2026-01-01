@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.2](https://github.com/retraut/gatekeeper/compare/v0.7.1...v0.7.2) (2026-01-01)
+
+
+### Bug Fixes
+
+* bump version to 0.7.2 ([ee6b133](https://github.com/retraut/gatekeeper/commit/ee6b13357c64b62195b5ec40d0304b774e41c291))
+* consolidate release workflow - build and brew update in one run ([0ffc1d6](https://github.com/retraut/gatekeeper/commit/0ffc1d69c3555fe3b102dea8123bd60559900029))
+
 ## [0.7.1](https://github.com/retraut/gatekeeper/compare/v0.7.0...v0.7.1) (2026-01-01)
 
 
