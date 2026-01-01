@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"syscall"
 	"time"
 )
 
@@ -24,6 +25,24 @@ func getStatePath() string {
 	return filepath.Join(home, ".cache", "gatekeeper", "state.json")
 }
 
+// isProcessRunning checks if a process with given PID exists
+func isProcessRunning(pid int) bool {
+	if pid <= 0 {
+		return false
+	}
+
+	// Try to find the process
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return false
+	}
+
+	// Send signal 0 to check if process exists (doesn't actually send anything)
+	// On Unix systems, signal 0 can be used to check process existence
+	err = process.Signal(syscall.Signal(0))
+	return err == nil
+}
+
 func loadState() (*State, error) {
 	path := getStatePath()
 	data, err := os.ReadFile(path)
@@ -38,6 +57,17 @@ func loadState() (*State, error) {
 	if err := json.Unmarshal(data, &state); err != nil {
 		return nil, err
 	}
+
+	// Verify daemon is actually running if state says it is
+	if state.Daemon != nil && state.Daemon.Running {
+		if !isProcessRunning(state.Daemon.PID) {
+			// Process not running, update state
+			state.Daemon.Running = false
+			// Save corrected state back to file
+			saveState(&state)
+		}
+	}
+
 	return &state, nil
 }
 
