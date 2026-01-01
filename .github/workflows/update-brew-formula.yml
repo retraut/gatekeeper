@@ -65,7 +65,7 @@ jobs:
         run: |
           gh repo clone retraut/homebrew-gatekeeper /tmp/tap
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
 
       - name: Update formula file in tap
         env:
@@ -148,4 +148,4 @@ jobs:
             git push
           fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
