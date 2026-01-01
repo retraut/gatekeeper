@@ -2,27 +2,27 @@ class Gatekeeper < Formula
   desc "Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI"
   homepage "https://github.com/retraut/gatekeeper"
   license "MIT"
-  version "v0.5.2"
+  version "v0.6.0"
 
   on_macos do
     on_arm do
-      url "https://github.com/retraut/gatekeeper/releases/download/v0.5.2/gatekeeper-darwin-arm64"
-      sha256 "8d51d3f67f95a88f857aa81ccdd637efc50d22d46ad61c04223eeb08955f728c"
+      url "https://github.com/retraut/gatekeeper/releases/download/v0.6.0/gatekeeper-darwin-arm64"
+      sha256 "90c13a9edc065adbfe10b735a34ff40bc88cabb59fd68c4e96461a38ce567422"
     end
     on_intel do
-      url "https://github.com/retraut/gatekeeper/releases/download/v0.5.2/gatekeeper-darwin-amd64"
-      sha256 "165189cc85ac2cef1d209dcec35e17381057bf972aa5ba4b886ef1c8e3dd0366"
+      url "https://github.com/retraut/gatekeeper/releases/download/v0.6.0/gatekeeper-darwin-amd64"
+      sha256 ""
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/retraut/gatekeeper/releases/download/v0.5.2/gatekeeper-linux-arm64"
-      sha256 "9a26ba69e65e3bbbede6fc4c6d5b565d47527056f60d9bd753c334548f1987cf"
+      url "https://github.com/retraut/gatekeeper/releases/download/v0.6.0/gatekeeper-linux-arm64"
+      sha256 "245c578889486da4a06b4d9f063999f4cd7defd1fd68922b362a36e486b84cba"
     end
     on_intel do
-      url "https://github.com/retraut/gatekeeper/releases/download/v0.5.2/gatekeeper-linux-amd64"
-      sha256 "dfc3f1f93d3e9cbe01199bb21a4ed92b9c339da278c89b0a77da4b40c1cbbb0b"
+      url "https://github.com/retraut/gatekeeper/releases/download/v0.6.0/gatekeeper-linux-amd64"
+      sha256 "89d16d177b58e12500483ddefb1726217a0c388aaf255831c3db4654f7e0164b"
     end
   end
 
