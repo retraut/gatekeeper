@@ -37,7 +37,7 @@ func main() {
 		// Use default config path if not specified
 		configFile := *configPath
 		if configFile == "" {
-			home, _ := os.UserHomeDir()
+			home := getUserHomeDir()
 			configFile = filepath.Join(home, ".config/gatekeeper/config.yaml")
 		}
 		
@@ -90,7 +90,7 @@ func handleStatus(jsonOutput, compact bool) {
 }
 
 func handleInit() {
-	home, _ := os.UserHomeDir()
+	home := getUserHomeDir()
 	configPath := filepath.Join(home, ".config", "gatekeeper", "config.yaml")
 
 	// Create directory
@@ -119,7 +119,7 @@ interval: 30
 }
 
 func handleStop() {
-	home, _ := os.UserHomeDir()
+	home := getUserHomeDir()
 	pidFile := filepath.Join(home, ".cache/gatekeeper/daemon.pid")
 
 	pidBytes, err := os.ReadFile(pidFile)
@@ -128,10 +128,8 @@ func handleStop() {
 		return
 	}
 
-	pid := 0
-	fmt.Sscanf(string(pidBytes), "%d", &pid)
-
-	if pid == 0 {
+	var pid int
+	if _, err := fmt.Sscanf(string(pidBytes), "%d", &pid); err != nil || pid <= 0 {
 		fmt.Println("Invalid PID file")
 		os.Remove(pidFile)
 		return
@@ -173,7 +171,7 @@ func handleStop() {
 
 func handleAuth(serviceName string) {
 	// Load config
-	home, _ := os.UserHomeDir()
+	home := getUserHomeDir()
 	configFile := filepath.Join(home, ".config/gatekeeper/config.yaml")
 
 	config, err := loadConfig(configFile)
@@ -254,7 +252,7 @@ func handleAuth(serviceName string) {
 }
 
 func handleCompletion(action string) {
-	home, _ := os.UserHomeDir()
+	home := getUserHomeDir()
 	zshCompletionPath := filepath.Join(home, ".zsh/completions/_gatekeeper")
 	zshrcPath := filepath.Join(home, ".zshrc")
 
@@ -310,7 +308,7 @@ func handleCompletion(action string) {
 
 func generateZshCompletion() string {
 	// Load config to get service names for completion
-	home, _ := os.UserHomeDir()
+	home := getUserHomeDir()
 	configFile := filepath.Join(home, ".config/gatekeeper/config.yaml")
 
 	var serviceNames []string

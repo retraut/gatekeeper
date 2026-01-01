@@ -36,7 +36,7 @@ type Logger struct {
 }
 
 func NewLogger(level LogLevel) *Logger {
-	home, _ := os.UserHomeDir()
+	home := getUserHomeDir()
 	logDir := filepath.Join(home, ".cache", "gatekeeper")
 	os.MkdirAll(logDir, 0755)
 

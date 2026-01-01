@@ -83,7 +83,7 @@ jobs:
           linux_amd64 = os.environ.get('LINUX_AMD64')
 
           formula = f"""class Gatekeeper < Formula
-            desc "Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI"
+            desc "Service authentication status monitor with daemon, CLI, and tmux integration"
             homepage "https://github.com/retraut/gatekeeper"
             license "MIT"
             version "{version}"

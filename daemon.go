@@ -20,7 +20,7 @@ func runDaemon(config *Config) {
 	daemonStartTime = time.Now()
 
 	// Save PID file
-	home, _ := os.UserHomeDir()
+	home := getUserHomeDir()
 	cacheDir := filepath.Join(home, ".cache/gatekeeper")
 	os.MkdirAll(cacheDir, 0755)
 	pidFile := filepath.Join(cacheDir, "daemon.pid")

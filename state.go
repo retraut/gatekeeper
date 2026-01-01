@@ -21,7 +21,7 @@ type DaemonStatus struct {
 }
 
 func getStatePath() string {
-	home, _ := os.UserHomeDir()
+	home := getUserHomeDir()
 	return filepath.Join(home, ".cache", "gatekeeper", "state.json")
 }
 

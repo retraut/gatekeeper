@@ -35,5 +35,12 @@ func loadConfig(path string) (*Config, error) {
 		config.Interval = 30
 	}
 
+	// Validate interval bounds
+	if config.Interval < 5 {
+		config.Interval = 5
+	} else if config.Interval > 3600 {
+		config.Interval = 3600
+	}
+
 	return &config, nil
 }

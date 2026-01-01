@@ -2,12 +2,20 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
-	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 )
+
+// getUserHomeDir returns user home directory or exits with error message
+func getUserHomeDir() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatalf("Error: Cannot determine home directory: %v\nThis may happen in restricted environments. Please set $HOME environment variable.", err)
+	}
+	return home
+}
 
 // FormatCompact returns a tmux-friendly status string
 // Example: "AWS:❌ GitHub:✅"
@@ -66,24 +74,4 @@ func formatUptime(startTime time.Time) string {
 		return fmt.Sprintf("%dm%ds", minutes, seconds)
 	}
 	return fmt.Sprintf("%ds", seconds)
-}
-
-// isDaemonRunning checks if daemon is actually running
-func isDaemonRunning() bool {
-	home, _ := os.UserHomeDir()
-	pidFile := filepath.Join(home, ".cache/gatekeeper/daemon.pid")
-	
-	pidBytes, err := os.ReadFile(pidFile)
-	if err != nil {
-		return false
-	}
-	
-	pid, err := strconv.Atoi(strings.TrimSpace(string(pidBytes)))
-	if err != nil || pid == 0 {
-		return false
-	}
-	
-	// Try to find process
-	_, err = os.FindProcess(pid)
-	return err == nil
 }

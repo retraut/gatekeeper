@@ -1,6 +1,6 @@
 # Gatekeeper
 
-Service authentication status monitor with daemon, CLI, tmux integration, and macOS GUI.
+Service authentication status monitor with daemon, CLI, and tmux integration.
 
 Check if your AWS, GitHub, Docker, and other CLI tools are properly authenticated—all from one place.
 
@@ -75,17 +75,11 @@ Download pre-built binaries:
 # macOS (Apple Silicon)
 wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-arm64
 
-# macOS (Intel)
-wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-darwin-amd64
-
 # Linux (x86_64)
 wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-linux-amd64
 
 # Linux (ARM64)
 wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-linux-arm64
-
-# Windows
-wget https://github.com/retraut/gatekeeper/releases/latest/download/gatekeeper-windows-amd64.exe
 ```
 
 Make executable and move to PATH:
@@ -348,10 +342,9 @@ Then: `source ~/.zshrc`
 ## Build Options
 
 ```bash
-./build.sh                    # Build everything
+./build.sh                    # Build CLI
 ./build.sh --cli              # CLI only
 ./build.sh --cli --install    # CLI + install
-./build.sh --app              # macOS app (needs Xcode)
 ./build.sh --test             # Verify installation
 ./build.sh --clean            # Remove artifacts
 ./build.sh --help             # Show all options
@@ -370,28 +363,6 @@ set -g status-interval 30
 Reload:
 ```bash
 tmux source-file ~/.tmux.conf
-```
-
-### macOS Auto-start
-
-Install LaunchAgent:
-
-```bash
-cp launch-agent.plist ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
-launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
-```
-
-Manage daemon:
-```bash
-# Check status
-launchctl list | grep gatekeeper
-
-# View logs
-tail -f /var/log/gatekeeper.log
-
-# Stop/start
-launchctl unload ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
-launchctl load ~/Library/LaunchAgents/com.gatekeeper.daemon.plist
 ```
 
 ## File Locations
