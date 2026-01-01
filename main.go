@@ -377,8 +377,11 @@ _gatekeeper "$@"
 `
 }
 
+const Version = "0.7.1"
+
 func printUsage() {
-	fmt.Println(`Gatekeeper - Service authentication status monitor
+	fmt.Printf("Gatekeeper v%s - Service authentication status monitor\n", Version)
+	fmt.Println(`
 
 Usage:
   gatekeeper start [--config path]                    Start daemon (auto-uses ~/.config/gatekeeper/config.yaml)
