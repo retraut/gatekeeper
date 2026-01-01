@@ -95,9 +95,7 @@ jobs:
 
       - name: Clone tap repository
         run: |
-          gh repo clone retraut/homebrew-gatekeeper /tmp/tap
-        env:
-          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          git clone https://x-access-token:${{ secrets.HOMEBREW_TAP_TOKEN }}@github.com/retraut/homebrew-gatekeeper.git /tmp/tap
 
       - name: Update formula
         run: |
@@ -179,5 +177,3 @@ jobs:
             git commit -m "chore: update formula to ${{ needs.release-please.outputs.tag_name }}"
             git push
           fi
-        env:
-          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
