@@ -377,7 +377,7 @@ _gatekeeper "$@"
 `
 }
 
-const Version = "0.7.2"
+const Version = "0.7.3"
 
 func printUsage() {
 	fmt.Printf("Gatekeeper v%s - Service authentication status monitor\n", Version)
