@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/retraut/gatekeeper/compare/v0.6.0...v0.6.1) (2026-01-01)
+
+
+### Bug Fixes
+
+* verify daemon process is actually running in status command ([e4f04aa](https://github.com/retraut/gatekeeper/commit/e4f04aa3a206cd275f7a139ff7f226482e7388e6))
+
 ## [0.5.2](https://github.com/retraut/gatekeeper/compare/v0.5.1...v0.5.2) (2025-12-30)
 
 
