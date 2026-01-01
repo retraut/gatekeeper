@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.3](https://github.com/retraut/gatekeeper/compare/v0.7.2...v0.7.3) (2026-01-01)
+
+
+### Bug Fixes
+
+* bump version to 0.7.3 ([97c395f](https://github.com/retraut/gatekeeper/commit/97c395fd04b44ca2e26998f6f207c168910be4f6))
+* use git clone with token in URL for brew tap push ([e39a50b](https://github.com/retraut/gatekeeper/commit/e39a50be4d6e370a5d942b731939ef42731c00e9))
+
 ## [0.7.2](https://github.com/retraut/gatekeeper/compare/v0.7.1...v0.7.2) (2026-01-01)
 
 
