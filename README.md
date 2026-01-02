@@ -484,13 +484,6 @@ go mod download
 ./build.sh --clean --cli
 ```
 
-## Documentation
-
-- **Build Guide** - [docs/build.md](docs/build.md)
-- **Setup & Config** - [docs/setup.md](docs/setup.md)
-- **Architecture** - [docs/architecture.md](docs/architecture.md)
-- **All Docs** - [docs/](docs/)
-
 ## Contributing
 
 This project uses **Conventional Commits** for automated versioning:
@@ -498,8 +491,6 @@ This project uses **Conventional Commits** for automated versioning:
 - `feat: Add new feature` → minor version bump
 - `fix: Fix a bug` → patch version bump
 - `feat!: Breaking change` → major version bump
-
-See [docs/contributing.md](docs/contributing.md) for details.
 
 ## License
 
