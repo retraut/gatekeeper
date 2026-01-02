@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/retraut/gatekeeper/compare/v0.7.3...v0.8.0) (2026-01-02)
+
+
+### Features
+
+* add custom icons for services in tmux display ([#19](https://github.com/retraut/gatekeeper/issues/19)) ([7833c9b](https://github.com/retraut/gatekeeper/commit/7833c9b47d27323dc1278879c9152e51d02e8c2e))
+
 ## [0.7.3](https://github.com/retraut/gatekeeper/compare/v0.7.2...v0.7.3) (2026-01-01)
 
 
