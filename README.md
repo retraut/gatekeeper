@@ -121,6 +121,55 @@ interval: 30
 - `check_cmd` - Command to verify authentication (must exit 0 for success)
 - `timeout` - Timeout per service in seconds (default: 5)
 - `retries` - Number of retries (default: 1)
+- `icon` - Optional custom icon for tmux display (default: auto-detected for common services)
+
+### Custom Icons
+
+Gatekeeper automatically shows icons for common services in tmux:
+- **GitHub**: 🐙
+- **AWS**: ☁️
+- **GCP**: 🌐
+- **Docker**: 🐳
+- **Kubernetes**: ☸️
+- **Azure**: ☁️
+
+You can customize icons per service:
+
+```yaml
+services:
+  - name: AWS Production
+    check_cmd: "AWS_PROFILE=prod aws sts get-caller-identity > /dev/null 2>&1"
+    icon: "🔴"  # Custom red circle for production
+
+  - name: AWS Staging
+    check_cmd: "AWS_PROFILE=staging aws sts get-caller-identity > /dev/null 2>&1"
+    icon: "🟡"  # Custom yellow circle for staging
+
+  - name: GitHub
+    check_cmd: "gh auth status > /dev/null 2>&1"
+    # No icon specified - will use default 🐙
+
+  - name: Custom Service
+    check_cmd: "my-custom-check"
+    icon: "⚡"  # Any Unicode character or emoji
+```
+
+**Nerd Font Icons** (optional, requires Nerd Font in terminal):
+
+```yaml
+services:
+  - name: GitHub
+    check_cmd: "gh auth status > /dev/null 2>&1"
+    icon: ""  # Nerd Font GitHub icon
+
+  - name: AWS
+    check_cmd: "aws sts get-caller-identity > /dev/null 2>&1"
+    icon: "󰸏"  # Nerd Font AWS icon
+
+  - name: GCP
+    check_cmd: "gcloud auth list > /dev/null 2>&1"
+    icon: "󱇶"  # Nerd Font GCP icon
+```
 
 ### Advanced Examples
 
@@ -386,7 +435,7 @@ GitHub: ✓ alive
 **Compact format (for tmux):**
 ```bash
 $ gatekeeper status --compact
-AWS:✓ GitHub:✓
+☁️ AWS:✅ 🐙 GitHub:✅
 ```
 
 **JSON format (for apps/monitoring):**
