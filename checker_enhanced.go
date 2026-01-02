@@ -13,6 +13,7 @@ type ServiceStatus struct {
 	Name    string `json:"name"`
 	IsAlive bool   `json:"is_alive"`
 	Error   string `json:"error,omitempty"`
+	Icon    string `json:"icon,omitempty"`
 }
 
 type CheckerOptions struct {
@@ -39,6 +40,7 @@ func NewEnhancedChecker(opts CheckerOptions) *EnhancedChecker {
 func (c *EnhancedChecker) CheckWithContext(ctx context.Context, service Service) ServiceStatus {
 	status := ServiceStatus{
 		Name: service.Name,
+		Icon: getServiceIcon(service.Name, service.Icon),
 	}
 
 	// Try with retries

@@ -12,6 +12,7 @@ type Service struct {
 	AuthCmd  string `yaml:"auth_cmd"`
 	Timeout  int    `yaml:"timeout"`  // seconds
 	Retries  int    `yaml:"retries"`
+	Icon     string `yaml:"icon"`     // optional custom icon for tmux display
 }
 
 type Config struct {

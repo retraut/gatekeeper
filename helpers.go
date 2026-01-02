@@ -17,16 +17,69 @@ func getUserHomeDir() string {
 	return home
 }
 
+// getServiceIcon returns the icon for a service
+// Uses custom icon if set, otherwise returns default icon based on service name
+// Default icons use simple Unicode that works without special fonts
+func getServiceIcon(serviceName, customIcon string) string {
+	// Use custom icon if provided
+	if customIcon != "" {
+		return customIcon
+	}
+
+	// Default icons for common services
+	// Using simple Unicode icons that work without Nerd Fonts
+	nameLower := strings.ToLower(serviceName)
+
+	// GitHub
+	if strings.Contains(nameLower, "github") || strings.Contains(nameLower, "gh") {
+		return "🐙"
+	}
+
+	// AWS
+	if strings.Contains(nameLower, "aws") {
+		return "☁️"
+	}
+
+	// GCP / Google Cloud
+	if strings.Contains(nameLower, "gcp") || strings.Contains(nameLower, "google") {
+		return "🌐"
+	}
+
+	// Docker
+	if strings.Contains(nameLower, "docker") {
+		return "🐳"
+	}
+
+	// Kubernetes
+	if strings.Contains(nameLower, "kubernetes") || strings.Contains(nameLower, "k8s") {
+		return "☸️"
+	}
+
+	// Azure
+	if strings.Contains(nameLower, "azure") {
+		return "☁️"
+	}
+
+	// No default icon
+	return ""
+}
+
 // FormatCompact returns a tmux-friendly status string
-// Example: "AWS:❌ GitHub:✅"
+// Example: " AWS:❌  GitHub:✅"
 func FormatCompact(state *State) string {
 	var parts []string
 	for _, s := range state.Services {
-		icon := "✅"
+		statusIcon := "✅"
 		if !s.IsAlive {
-			icon = "❌"
+			statusIcon = "❌"
 		}
-		parts = append(parts, fmt.Sprintf("%s:%s", s.Name, icon))
+
+		// Include service icon if available
+		if s.Icon != "" {
+			parts = append(parts, fmt.Sprintf("%s %s:%s", s.Icon, s.Name, statusIcon))
+		} else {
+			parts = append(parts, fmt.Sprintf("%s:%s", s.Name, statusIcon))
+		}
 	}
 	return strings.Join(parts, " ")
 }
